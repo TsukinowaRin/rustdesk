@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "hooks": {
+    "subagentStart": [
+      {
+        "command": "python3 .cursor/hooks/subagent_policy.py",
+        "failClosed": true
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "ROOT=\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\"; python3 \"$ROOT/.cursor/hooks/pre_tool_use_policy.py\""
+      }
+    ],
+    "beforeReadFile": [
+      {
+        "command": "ROOT=\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\"; python3 \"$ROOT/.cursor/hooks/pre_tool_use_policy.py\""
+      }
+    ]
+  }
+}

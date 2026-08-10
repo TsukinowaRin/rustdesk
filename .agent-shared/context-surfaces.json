@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "canonical": {
+    "rules": "AGENTS.md",
+    "skills": ".agents/skills",
+    "hook_core": ".agent-shared/hooks_core",
+    "permissions": ".agent-shared/permissions.json"
+  },
+  "clis": {
+    "claude": {
+      "rules": {
+        "mode": "import",
+        "path": "CLAUDE.md",
+        "marker": "@AGENTS.md"
+      },
+      "skills": {
+        "mode": "mirror",
+        "path": ".claude/skills"
+      },
+      "guard": {
+        "mode": "hook_adapter",
+        "config": ".claude/settings.json",
+        "adapter": ".claude/hooks/pre_tool_use_policy.py"
+      }
+    },
+    "codex": {
+      "rules": {
+        "mode": "native",
+        "path": "AGENTS.md"
+      },
+      "skills": {
+        "mode": "native",
+        "path": ".agents/skills"
+      },
+      "guard": {
+        "mode": "hook_adapter",
+        "config": ".codex/config.toml",
+        "adapter": ".codex/hooks/pre_tool_use_policy.py"
+      }
+    },
+    "antigravity": {
+      "rules": {
+        "mode": "native",
+        "path": "AGENTS.md"
+      },
+      "skills": {
+        "mode": "native",
+        "path": ".agents/skills"
+      },
+      "guard": {
+        "mode": "hook_adapter",
+        "config": ".agents/hooks.json",
+        "adapter": ".agents/hooks/pre_tool_use_policy.py"
+      }
+    },
+    "cursor": {
+      "rules": {
+        "mode": "native",
+        "path": "AGENTS.md"
+      },
+      "skills": {
+        "mode": "native",
+        "path": ".agents/skills"
+      },
+      "guard": {
+        "mode": "hook_adapter",
+        "config": ".cursor/hooks.json",
+        "adapter": ".cursor/hooks/pre_tool_use_policy.py"
+      }
+    },
+    "opencode": {
+      "rules": {
+        "mode": "native",
+        "path": "AGENTS.md"
+      },
+      "skills": {
+        "mode": "native",
+        "path": ".agents/skills"
+      },
+      "guard": {
+        "mode": "generated_permission",
+        "config": "opencode.jsonc",
+        "source": ".agent-shared/permissions.json"
+      }
+    },
+    "kilo": {
+      "rules": {
+        "mode": "native",
+        "path": "AGENTS.md"
+      },
+      "skills": {
+        "mode": "native",
+        "path": ".agents/skills",
+        "config": "kilo.jsonc"
+      },
+      "guard": {
+        "mode": "generated_permission",
+        "config": "kilo.jsonc",
+        "source": ".agent-shared/permissions.json"
+      }
+    },
+    "grok": {
+      "rules": {
+        "mode": "native",
+        "path": "AGENTS.md"
+      },
+      "skills": {
+        "mode": "native",
+        "path": ".agents/skills"
+      },
+      "guard": {
+        "mode": "native_permission+hook_adapter",
+        "config": ".grok/config.toml",
+        "hook_config": ".claude/settings.json",
+        "adapter": ".claude/hooks/pre_tool_use_policy.py"
+      }
+    }
+  }
+}

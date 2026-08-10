@@ -1,0 +1,32 @@
+# Block destructive git cleanup commands by default.
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Use targeted restores or ask the user before destructive history changes.",
+    match = ["git reset --hard", "git reset --hard HEAD~1"],
+    not_match = ["git reset --soft HEAD~1"],
+)
+
+prefix_rule(
+    pattern = ["git", "clean", "-fd"],
+    decision = "forbidden",
+    justification = "Do not delete untracked files without explicit user approval.",
+    match = ["git clean -fd", "git clean -fd src"],
+    not_match = ["git clean -n"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "origin", "main"],
+    decision = "forbidden",
+    justification = "Push a feature branch and open a review instead of writing directly to main.",
+    match = ["git push origin main", "git push origin main --force-with-lease"],
+    not_match = ["git push origin codex/template-refresh"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "origin", "master"],
+    decision = "forbidden",
+    justification = "Push a feature branch and open a review instead of writing directly to master.",
+    match = ["git push origin master", "git push origin master --force-with-lease"],
+    not_match = ["git push origin codex/template-refresh"],
+)

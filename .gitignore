@@ -58,3 +58,14 @@ libsciter.dylib
 flutter/web/
 # libdrmtap is cloned at build time by build.py (not a submodule)
 /third_party/libdrmtap/
+
+# Agent harness local/runtime state
+Old/
+__pycache__/
+*.pyc
+CLAUDE.local.md
+.claude/settings.local.json
+.antigravitycli/
+.obsidian/
+tmp/
+.loop/
