@@ -1,0 +1,8 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  // Kilo は .agents/skills を自動では読まないので、ここで指す（ほかの CLI は標準の置き場をそのまま読む）。
+  // 編集元は .agents/skills/ の 1 か所だけ。写しは作らない。
+  "skills": {
+    "paths": [".agents/skills"]
+  }
+}

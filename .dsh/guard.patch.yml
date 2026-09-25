@@ -1,0 +1,27 @@
+# DeepSeek Harness（dsh）用の追加設定。dsh はプロジェクトの設定を自動では読まないので、起動のたびに渡す:
+#   dsh --profile headless --patch .dsh/guard.patch.yml "<依頼>"
+#   dsh --profile acp      --patch .dsh/guard.patch.yml          （担い手として。harness/delegate.py が付ける）
+# repo の根で起動すること（configPath は起動した場所から解決される）。
+#
+# 1. 守り: Claude Code と同じ hook 設定（.claude/settings.json）を、変換プラグインでそのまま使う。
+#    注意: 設定を読めないとき、dsh は警告だけ出して hook 無しで動く（素通り）。docs/SECURITY.md の限界。
+- insert:
+    - id: harness-guard
+      name: '@deepseek-ai/dsh-hooks-claude-code'
+      config:
+        configPath: ./.claude/settings.json
+        projectDir: .
+
+# 2. 標準の子エージェントは使わない（AGENTS.md）。他の担い手へ渡す道は harness/delegate.py だけ。
+- id: tool-subagent
+  disabled: true
+- id: tool-subagent-fork
+  disabled: true
+- id: tool-subagent-control
+  disabled: true
+- id: tool-subagent-list-agents
+  disabled: true
+- id: tool-ralph
+  disabled: true
+- id: tool-workflow
+  disabled: true

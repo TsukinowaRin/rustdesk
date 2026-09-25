@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "d=\"$PWD\"; while [ ! -f \"$d/harness/guard.py\" ] && [ \"$d\" != \"/\" ]; do d=\"${d%/*}\"; d=\"${d:-/}\"; done; exec python3 -B \"$d/harness/setup.py\" auto",
+        "failClosed": false
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "d=\"$PWD\"; while [ ! -f \"$d/harness/guard.py\" ] && [ \"$d\" != \"/\" ]; do d=\"${d%/*}\"; d=\"${d:-/}\"; done; exec python3 -B \"$d/harness/guard.py\" --dialect cursor",
+        "failClosed": true
+      }
+    ],
+    "beforeReadFile": [
+      {
+        "command": "d=\"$PWD\"; while [ ! -f \"$d/harness/guard.py\" ] && [ \"$d\" != \"/\" ]; do d=\"${d%/*}\"; d=\"${d:-/}\"; done; exec python3 -B \"$d/harness/guard.py\" --dialect cursor",
+        "failClosed": true
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "d=\"$PWD\"; while [ ! -f \"$d/harness/guard.py\" ] && [ \"$d\" != \"/\" ]; do d=\"${d%/*}\"; d=\"${d:-/}\"; done; exec python3 -B \"$d/harness/guard.py\" --dialect cursor",
+        "failClosed": true
+      }
+    ],
+    "subagentStart": [
+      {
+        "command": "d=\"$PWD\"; while [ ! -f \"$d/harness/guard.py\" ] && [ \"$d\" != \"/\" ]; do d=\"${d%/*}\"; d=\"${d:-/}\"; done; exec python3 -B \"$d/harness/guard.py\" --dialect cursor",
+        "failClosed": true
+      }
+    ]
+  }
+}

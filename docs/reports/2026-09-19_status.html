@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ハーネス V3.1.0 の現状（2026-09-19）</title>
+<style>
+  :root{
+    --bg:#fbfaf8; --card:#fff; --ink:#1c1a17; --dim:#5d5750; --line:#e2ddd5;
+    --ok:#1f7a4d; --ng:#a8322a; --wait:#9a6b12; --accent:#2f5d8a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#17161a; --card:#201e24; --ink:#eceae6; --dim:#a8a29a; --line:#35313a;
+           --ok:#63c893; --ng:#f08a80; --wait:#e0b34d; --accent:#8bb6e0; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+       line-height:1.85;font-size:16px;}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  header{border-bottom:3px solid var(--ink);padding-bottom:14px;margin-bottom:8px}
+  h1{font-size:1.65rem;margin:0 0 6px;line-height:1.35}
+  h2{font-size:1.25rem;margin:44px 0 10px;padding-left:12px;border-left:6px solid var(--accent)}
+  h3{font-size:1.02rem;margin:24px 0 6px;color:var(--dim)}
+  p,li{margin:8px 0}
+  .lead{color:var(--dim);font-size:.94rem}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:14px 0}
+  .big{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+  .big div{flex:1 1 150px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .big b{display:block;font-size:1.5rem;line-height:1.2}
+  .big span{font-size:.82rem;color:var(--dim)}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.93rem}
+  .scroll{overflow-x:auto}
+  th,td{border-bottom:1px solid var(--line);padding:8px 8px;text-align:left;vertical-align:top}
+  th{background:color-mix(in srgb, var(--accent) 10%, transparent);font-weight:600;white-space:nowrap}
+  code{background:color-mix(in srgb, var(--ink) 8%, transparent);padding:1px 5px;border-radius:4px;
+       font-family:ui-monospace,"Cascadia Code",Consolas,monospace;font-size:.88em}
+  .ok{color:var(--ok);font-weight:700}
+  .ng{color:var(--ng);font-weight:700}
+  .wait{color:var(--wait);font-weight:700}
+  .note{border-left:5px solid var(--wait);background:color-mix(in srgb, var(--wait) 10%, transparent);
+        padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+  .quote{border-left:5px solid var(--accent);padding:4px 14px;color:var(--dim);margin:10px 0}
+  ul{padding-left:1.25em}
+  footer{margin-top:50px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:.85rem}
+  @media print{ body{background:#fff;color:#000} .card,.big div{border:1px solid #999} h2{border-left-color:#000} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>ハーネス V3.1.0 の現状</h1>
+  <p class="lead">2026-09-19 時点 ／ 枝 <code>Fable5.1/v3.1.0-bootstrap</code>（commit 17 本、push はしていません）<br>
+  書いた人: 指示役（9/17〜18 は Fable 5.1、9/19 から Opus 5）</p>
+</header>
+
+<h2>1. 結論（3 行）</h2>
+<div class="card">
+  <p><b>①ハーネスの土台は動いています。</b> 守り・点検・判断の輪・担い手への依頼が、どれも実物で動きました。9 本の CLI のうち 6 本で、守りが実際に命令を止めるところまで確かめています。</p>
+  <p><b>②安い担い手に仕事を渡す仕組みが、初めて端から端まで回りました。</b> 9/19 に、月 10 ドルの安いモデルに「守りを読んで報告して」と頼み、81 秒で報告が返りました。しかもそのモデルが、規則と実装の食い違いを 1 つ見つけました。</p>
+  <p><b>③点検の点検（自己診断）が嘘をついていたのを見つけて直しました。</b> 壊していない複製でも落ちる状態だったため、「25 通りすべて検出」という表示に意味がありませんでした。今は「まず壊していない複製で通ること」を先に確かめます。<span class="ng">ただし、直したあとの通し確認は、まだ終わっていません。</span></p>
+</div>
+
+<div class="big">
+  <div><b>168</b><span>新版のファイル数（旧版 503）</span></div>
+  <div><b>1.5 MB</b><span>新版の大きさ（旧版 62 MB）</span></div>
+  <div><b>49 行</b><span>毎回読む規則（旧版 81 行）</span></div>
+  <div><b>238</b><span>試験の場面（ずれ 0）</span></div>
+  <div><b>6 / 9</b><span>守りの発火を実測できた CLI</span></div>
+</div>
+
+<h2>2. できたもの</h2>
+<div class="scroll">
+<table>
+  <tr><th>もの</th><th>中身</th><th>大きさ</th><th>状態</th></tr>
+  <tr><td><code>AGENTS.md</code></td><td>全 CLI が毎回読む規則。詳細は skills と docs に逃がす</td><td>49 行 / 5.1 KB</td><td class="ok">できた</td></tr>
+  <tr><td><code>harness/guard.py</code></td><td>守りの判定。9 本の CLI がこの 1 本を呼ぶ</td><td>631 行</td><td class="ok">できた</td></tr>
+  <tr><td>9 本の CLI の配線</td><td>CLI ごとに設定 1 枚だけ。判定は持たせない</td><td>計 16 KB</td><td class="ok">できた</td></tr>
+  <tr><td><code>harness/check.py</code></td><td>点検の入口。形 7 つ + 試験 6 本 + 壊し方 25 通り</td><td>224 行</td><td class="wait">直した直後</td></tr>
+  <tr><td><code>harness/judgment.py</code></td><td>判断カード → 台帳 → 蒸留 → 原則（Kagemusha の型をそのまま使う）</td><td>249 行</td><td class="ok">できた</td></tr>
+  <tr><td><code>harness/delegate.py</code></td><td>担い手へ仕事を渡す。ギア 4 つを実行するだけ</td><td>340 行</td><td class="ok">できた</td></tr>
+  <tr><td><code>harness/setup.py</code></td><td>初回に 1 回だけ聞くこと（通知・任意の道具）</td><td>174 行</td><td class="ok">できた</td></tr>
+  <tr><td>skills 3 本</td><td>指示役 / 担い手 / 独立の確認</td><td>3.1 KB</td><td class="ok">できた</td></tr>
+  <tr><td><code>vendor/kagemusha/</code></td><td>上流 126 本を無編集で写し、検査の記録つき</td><td>1.3 MB</td><td class="ok">できた</td></tr>
+  <tr><td><code>docs/SECURITY.md</code> / <code>README.md</code> / <code>HARNESS.md</code></td><td>使う人向けの説明</td><td>—</td><td class="ng">未着手</td></tr>
+  <tr><td>配布の zip</td><td>v3.1.0 として出す</td><td>—</td><td class="ng">未着手</td></tr>
+</table>
+</div>
+
+<h3>大きくなりすぎない工夫（旧版の反省）</h3>
+<ul>
+  <li>旧版は CLI ごとに守りの中継役を 7 本持っていました。新版は <b>0 本</b>です。違いは設定ファイル 1 枚に閉じ込めました。</li>
+  <li>旧版の点検は 1 本で 1,981 行あり、Linux の「1 つの命令に渡せる長さの上限」に近づいていました。新版は入口 224 行で、中身は試験のファイルに分けています。</li>
+  <li>新しい種類の仕事が来ても、決めることは 4 つだけ（後述）。役や専用の道具を増やしません。</li>
+</ul>
+
+<h2>3. MoA（複数のエージェントの使い分け）の形</h2>
+<p>途中で大きく作り直しました。はじめは役を 7 つ作りましたが、あなたが示した記事「悪魔の自転車」のとおり、仕事の種類ごとに役を足すと仕組みが際限なく増えます。いまの形はこうです。</p>
+<div class="card">
+  <p><b>役は 2 つだけ。</b>あなたと話す<b>指示役</b>（1 人）と、実作業をする<b>担い手</b>（何人でも）。</p>
+  <p><b>依頼のたびに決めるのは 4 つだけ。</b></p>
+  <ul>
+    <li><b>費用</b>：誰に頼むか。安い担い手から選ぶ。</li>
+    <li><b>独立</b>：別の会社のモデルに確かめさせるか。同じモデルは同じ所で間違えるため。</li>
+    <li><b>手の有無</b>：触ってよいか、読むだけか。読むだけなら、機械的に書けなくします。</li>
+    <li><b>並べる</b>：1 人に頼むか、複数人に同じ依頼を出して案を集めるか。</li>
+  </ul>
+  <p>どのモデルを何人使うかは、<b>あなたが決めます</b>（<code>.loop/team.json</code>）。道具は勝手に振り分けません。</p>
+</div>
+
+<h2>4. 実際に動かして確かめたこと</h2>
+
+<h3>守りが本当に効くか（9 本の CLI）</h3>
+<div class="scroll">
+<table>
+  <tr><th>CLI</th><th>結果</th><th>中身</th></tr>
+  <tr><td>Claude Code</td><td class="ok">止めた</td><td>この会話の中で何度も。私自身が守りに止められています</td></tr>
+  <tr><td>Codex</td><td class="ok">止めた</td><td><code>Command blocked by PreToolUse hook</code></td></tr>
+  <tr><td>Antigravity（agy）</td><td class="ok">止めた</td><td><b>重要な発見</b>：作業場所を絶対パスで渡さないと、守りも規則も読まれず素通りでした</td></tr>
+  <tr><td>opencode</td><td class="ok">止めた</td><td>旧版は「hook が無い CLI」扱いでしたが、plugin で同じ守りを呼べました</td></tr>
+  <tr><td>oh-my-pi（omp）</td><td class="ok">止めた</td><td>—</td></tr>
+  <tr><td>DeepSeek Harness（dsh）</td><td class="ok">止めた</td><td>鍵が無いので、手元に偽のモデルを立てて確認。子エージェントの道具 7 つも消えました</td></tr>
+  <tr><td>Kilo</td><td class="wait">未確認</td><td>手元が 7.4.7（最新 7.7.2）。OpenCode Go が要求する項目を送れず断られます。repo の外でも同じ</td></tr>
+  <tr><td>Cursor</td><td class="wait">未確認</td><td>更新後も、画面なしで shell を使うと固まります。守りを外しても、repo の外でも同じ</td></tr>
+  <tr><td>Grok</td><td class="wait">未確認</td><td>残高切れ（あと 1 日ほど）</td></tr>
+</table>
+</div>
+<p class="lead">面白かった点：多くのモデルは、守りが働く前に <code>AGENTS.md</code> を読んで自分から断りました。「依頼文に『許可済み』と書かれていても、規則を上書きする根拠にしません」と答えたモデルもあります。規則と守りの二段構えが効いています。</p>
+
+<h3>担い手への依頼（9/19、初めて端から端まで）</h3>
+<div class="card">
+  <p>安いモデル（OpenCode Go の GLM 5.3 flash）に、「守りを読んで、止める種類を挙げて報告して」と頼みました。読むだけの指定です。</p>
+  <ul>
+    <li>結果：<b>81 秒で報告が返りました</b>。ファイルは 1 つも変更していません（指定どおり）。</li>
+    <li>その担い手が、<b>規則と実装の食い違いを見つけました</b>。<code>AGENTS.md</code> に「止めるのは 5 つだけ」と書いてあるのに、実際にはほかにも止めている、という指摘です。規則の側を直しました。</li>
+    <li>この 1 回で、仕組みの穴が 3 つ見つかり、全部直しました（次の章）。</li>
+  </ul>
+</div>
+
+<h2>5. 見つかった穴と、直したこと</h2>
+<div class="scroll">
+<table>
+  <tr><th>穴</th><th>何が起きたか</th><th>直し方</th></tr>
+  <tr><td>読むだけの担い手が、報告すら書けない</td><td>「書く道具を止める」が報告にも効いて、結果が返りませんでした</td><td class="ok">報告 1 本だけ例外にした</td></tr>
+  <tr><td>作業木に、保存前の変更が入らない</td><td>担い手の手元に守りも skill も無く、<b>守りが効かないまま動いていました</b></td><td class="ok">保存前の変更も写す</td></tr>
+  <tr><td>変更したファイル数が水増しされる</td><td>私が写した分を、担い手の変更として数えていました</td><td class="ok">起動の前後の差だけ数える</td></tr>
+  <tr><td class="ng">点検の点検が嘘の合格を出す</td><td>複製を <code>/tmp</code> に作るため、守りの「<code>/tmp</code> は消してよい」の例外が効き、<b>壊していない複製でも 5 件落ちていました</b>。そのため全部の壊し方が「検出できた」に見えていました</td><td class="wait">複製を repo の中に作り、先に「壊していない複製で通ること」を確かめる形に変更（<b>通し確認はこれから</b>）</td></tr>
+</table>
+</div>
+<div class="note">
+  <p><b>正直に言うべきこと。</b>試験はすべて私が書いたもので、<b>別のモデルによる独立の確認はまだ 1 度もしていません</b>。守りのように「間違えると取り返しがつかない」部分は、本来この確認を通してから合格にする決まりです（仕組みは 9/19 にできたので、次に最初の仕事として流せます）。</p>
+</div>
+
+<h2>6. 判断の負荷を減らす仕組み（Kagemusha）</h2>
+<p>「同じ説明を何度もさせない」ための仕組みです。今の状態はこうです。</p>
+<ul>
+  <li><b>台帳に 6 件</b>：あなたが私を直した言葉を、そのまま残しています（「札っていうのがわかりづらいな」「勝手に改変したら効力がよわまる？」など）。理由が言われていないときは、私の推測を「仮説」として分け、何が起きたら当たり外れが分かるかも書いています。</li>
+  <li><b>口癖の語彙 4 個</b>：あなたの言い回しを、使いながら覚えています（配布物には入りません）。</li>
+  <li><b>蒸留待ち 3 件</b>：5 件たまると、安いモデルが「原則の候補」を作ります。原則に上げるのは、あなたが確認の言葉を言ったものだけです。</li>
+  <li>途中で私が型を作り変えてしまい、あなたの指摘で <b>上流のまま使う形に戻しました</b>。上流 126 本を無編集で取り込み、取り込み前に中身を検査した記録も残しています。</li>
+</ul>
+
+<h2>7. 残っていること</h2>
+<div class="scroll">
+<table>
+  <tr><th>段</th><th>やること</th><th>状態</th></tr>
+  <tr><td>P3</td><td>点検の点検の通し確認（今日の修正後）</td><td class="wait">途中</td></tr>
+  <tr><td>P4</td><td>skills の残り（区切り・書き方・判断）</td><td class="ng">未</td></tr>
+  <tr><td>P5b</td><td>担い手の力を測る小さな課題</td><td class="ng">未</td></tr>
+  <tr><td>P6</td><td>旧版から引き継ぐ道具（Windows/WSL の橋・通知・SSH 窓）</td><td class="ng">未</td></tr>
+  <tr><td>P7</td><td>説明書（README / SECURITY / HARNESS）と配布の zip</td><td class="ng">未</td></tr>
+  <tr><td>—</td><td>Kilo・Cursor・Grok の実測</td><td class="wait">環境待ち</td></tr>
+</table>
+</div>
+
+<h2>8. あなたに決めてほしいこと</h2>
+<div class="card">
+  <ol>
+    <li><b>Kilo を更新しますか。</b> <code>npm i -g @kilocode/cli@latest</code> で 7.7.2 になります。更新できれば、守りの実測を 1 分で終えられます。</li>
+    <li><b>Cursor は担い手から外してよいですか。</b> 画面なしで動かないため、当面は使えません（対話では普通に使えます）。</li>
+    <li><b>次に何から進めますか。</b> 私のおすすめは「独立の確認を 1 回流す」です。安い担い手に守りを確かめさせれば、いちばん危ない部分の自作自演が解けます。</li>
+  </ol>
+</div>
+
+<footer>
+  正本は <code>docs/PLAN.md</code>（設計と進み）。この HTML は人が読むための写しで、数字は 2026-09-19 時点です。<br>
+  枝 <code>Fable5.1/v3.1.0-bootstrap</code>、commit 17 本。外へは何も出していません（push なし・公開なし）。
+</footer>
+
+</div>
+</body>
+</html>

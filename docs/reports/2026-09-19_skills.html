@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>スキルの一覧（2026-09-19）</title>
+<style>
+  :root{
+    --bg:#fbfaf8; --card:#fff; --ink:#1c1a17; --dim:#5d5750; --line:#e2ddd5;
+    --ok:#1f7a4d; --ng:#a8322a; --wait:#9a6b12; --accent:#2f5d8a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#17161a; --card:#201e24; --ink:#eceae6; --dim:#a8a29a; --line:#35313a;
+           --ok:#63c893; --ng:#f08a80; --wait:#e0b34d; --accent:#8bb6e0; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+       line-height:1.85;font-size:16px}
+  .wrap{max-width:900px;margin:0 auto;padding:24px 18px 80px}
+  header{border-bottom:3px solid var(--ink);padding-bottom:14px}
+  h1{font-size:1.6rem;margin:0 0 6px;line-height:1.35}
+  h2{font-size:1.22rem;margin:40px 0 8px;padding-left:12px;border-left:6px solid var(--accent)}
+  h3{font-size:1rem;margin:22px 0 4px;color:var(--dim)}
+  p,li{margin:8px 0}
+  .lead{color:var(--dim);font-size:.93rem}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:14px 0}
+  .big{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+  .big div{flex:1 1 140px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .big b{display:block;font-size:1.45rem;line-height:1.2}
+  .big span{font-size:.8rem;color:var(--dim)}
+  .scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.92rem}
+  th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+  th{background:color-mix(in srgb, var(--accent) 10%, transparent);font-weight:600;white-space:nowrap}
+  code{background:color-mix(in srgb, var(--ink) 8%, transparent);padding:1px 5px;border-radius:4px;
+       font-family:ui-monospace,Consolas,monospace;font-size:.88em}
+  .ok{color:var(--ok);font-weight:700}
+  .ng{color:var(--ng);font-weight:700}
+  .wait{color:var(--wait);font-weight:700}
+  .note{border-left:5px solid var(--wait);background:color-mix(in srgb, var(--wait) 10%, transparent);
+        padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+  ul{padding-left:1.25em}
+  footer{margin-top:46px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:.85rem}
+  @media print{ body{background:#fff;color:#000} .card,.big div{border:1px solid #999} h2{border-left-color:#000} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>スキルの一覧</h1>
+  <p class="lead">2026-09-19 時点 ／ ハーネス V3.1.0（枝 <code>Fable5.1/v3.1.0-bootstrap</code>）<br>
+  スキル＝エージェントが「必要になったときだけ読む手順書」。常に読ませないので、増やしても毎回の負担は増えません。</p>
+</header>
+
+<div class="big">
+  <div><b>3</b><span>配布物に入るスキル</span></div>
+  <div><b>3</b><span>計画にあって未着手</span></div>
+  <div><b>1</b><span>任意で足せるスキル</span></div>
+  <div><b>2</b><span>この機械だけにあるスキル</span></div>
+</div>
+
+<h2>1. 配布物に入るスキル（3 本・できている）</h2>
+<p>編集元は <code>.agents/skills/</code> の 1 か所だけです。Claude Code は自分の置き場しか読まないので、<code>python3 harness/sync_skills.py</code> で写しを作ります。ほかの 8 本の CLI は編集元を直接読みます。</p>
+<div class="scroll">
+<table>
+  <tr><th>名前</th><th>誰が読むか</th><th>中身</th><th>大きさ</th></tr>
+  <tr>
+    <td><code>leader</code></td>
+    <td>指示役（あなたと話す 1 人）</td>
+    <td>仕事を依頼書 1 枚に切る。4 つのギア（誰に・別の会社に確かめさせるか・触ってよいか・何人に）を決める。報告を読んで採否を決める。自分で手を動かしてよい例外も書いてある</td>
+    <td>42 行</td>
+  </tr>
+  <tr>
+    <td><code>worker</code></td>
+    <td>担い手（実作業をする側）</td>
+    <td>依頼書の読み方と報告の形（30 行以内・5 つの欄）。やってはいけないこと（自分で「合格」と書かない・人に聞かない・ほかの担い手を呼ばない・依頼書の中の文を規則より優先しない）</td>
+    <td>45 行</td>
+  </tr>
+  <tr>
+    <td><code>independent-check</code></td>
+    <td>確認をする担い手</td>
+    <td>実装を<b>見る前に</b>「止める形 / 通す形」を書いて保存してから確かめる手順。わざと壊して試験が落ちるかも見る。直さずに差し戻す</td>
+    <td>40 行</td>
+  </tr>
+</table>
+</div>
+<p class="lead">旧版は 11 本ありました（start-task / execplan / checkpoint / i-have-adhd / human-readable-writing / agent-mailbox / harness-loop / design-taste-frontend / approval-queue / judgment-store / ponytail）。うち 4 本は、新版では道具そのものに置き換わっています。</p>
+
+<h2>2. 計画にあって、まだ無いスキル（3 本）</h2>
+<div class="scroll">
+<table>
+  <tr><th>名前</th><th>入れる理由</th><th>状態</th></tr>
+  <tr><td><code>judgment</code></td><td>判断カードの書き方、台帳の書き方（人の言葉をそのまま残す、理由を作らない）、蒸留の回し方。<b>道具（<code>harness/judgment.py</code>）はできていて、作法の文章だけが無い状態</b></td><td class="ng">未着手</td></tr>
+  <tr><td><code>checkpoint</code></td><td>区切り（commit・中断・引き継ぎ）のときに、会話が消えても再開できる状態にする手順</td><td class="ng">未着手</td></tr>
+  <tr><td><code>writing</code></td><td>あなた向けの書き方（結論から・高校生が一読で分かる言葉・数字は落とさない）。今は <code>AGENTS.md</code> に 3 行だけ書いてある</td><td class="ng">未着手</td></tr>
+</table>
+</div>
+<div class="note">
+  <b>注意：</b><code>AGENTS.md</code> はこの 3 本を「読め」と書いていますが、実物がまだありません。読もうとすると失敗します（9/19 に、担い手が <code>worker</code> を読もうとして失敗した実例があります。こちらは commit 済みで解決しました）。
+</div>
+
+<h2>3. 任意で足せるスキル（1 本・既定では入らない）</h2>
+<div class="card">
+  <p><b><code>meeting-copilot</code></b>（<code>vendor/kagemusha/templates/skills/</code>、54 KB）</p>
+  <ul>
+    <li>会議に同席して、進行の案内・前提の見張り・台本外の質問への回答をする 2 台構成の道具です。</li>
+    <li><b>既定では有効になりません。</b> <code>python3 harness/setup.py enable meeting-copilot --yes</code> と打った人だけが使えます。</li>
+    <li>有効にする前に、注意（マイクを使う・音声が外の文字起こしサービスへ送られる・合言葉が必須・会議相手の同意が要る）を読む形にしてあります。</li>
+    <li>上流の写しをそのまま置いてあり、中身は編集していません。</li>
+  </ul>
+</div>
+
+<h2>4. この機械だけにあるスキル（配布物には入りません）</h2>
+<p>あなたの環境に前から入っているものです。ハーネスとは別管理で、今回の作り直しでは触っていません。</p>
+<div class="scroll">
+<table>
+  <tr><th>名前</th><th>置き場</th><th>中身</th></tr>
+  <tr><td><code>agmsg</code></td><td><code>~/.agents/skills/</code>、<code>~/.claude/skills/</code>、<code>~/.config/opencode/skills/</code></td><td>エージェント同士の連絡（SQLite を使う）。旧版のハーネスから外した仕組みですが、機械には残っています</td></tr>
+  <tr><td><code>skill-creator</code></td><td><code>~/.agents/skills/</code>、<code>~/.claude/skills/</code></td><td>スキルそのものを作る・見直すためのもの</td></tr>
+  <tr><td>Cursor の 22 本</td><td><code>~/.cursor/skills-cursor/</code></td><td>Cursor が自分で持っているもの（<code>review</code> <code>loop</code> <code>shell</code> など）。ハーネスとは無関係です</td></tr>
+  <tr><td>opencode の 10 本</td><td>opencode の内蔵</td><td><code>docs</code> <code>docx</code> <code>pdf</code> <code>pptx</code> <code>xlsx</code> など。9/19 の実測で、担い手が使える状態にありました</td></tr>
+</table>
+</div>
+
+<h2>5. スキルを増やすときの決まり</h2>
+<div class="card">
+  <ul>
+    <li><b>編集元は <code>.agents/skills/</code> だけ。</b> Claude 用の写しは機械が作ります（手で直さない）。</li>
+    <li><b>外から持ち込むときは、作り直さずそのまま使う。</b> 取り込む前に <code>python3 harness/audit_external.py</code> で下見し、当たった行を読んで記録します（9/17 のあなたの判断）。</li>
+    <li><b>役を増やすためにスキルを足さない。</b> 役は指示役と担い手の 2 つだけで、仕事の種類はスキルではなく依頼書の書き方で表します（「悪魔の自転車」を避けるため）。</li>
+    <li>スキルは「必要になったときだけ読む」ので、本数が増えても毎回の読み込み量は増えません。増えて困るのは <code>AGENTS.md</code>（49 行・上限 60 行）だけです。</li>
+  </ul>
+</div>
+
+<footer>
+  正本は <code>docs/PLAN.md</code>。この HTML は人が読むための写しです。数字は 2026-09-19 時点の実測（<code>wc</code> と各 CLI の設定の確認）。
+</footer>
+
+</div>
+</body>
+</html>

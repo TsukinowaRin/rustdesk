@@ -1,0 +1,16 @@
+{
+  "harness-guard": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "d=\"$PWD\"; while [ ! -f \"$d/harness/guard.py\" ] && [ \"$d\" != \"/\" ]; do d=\"${d%/*}\"; d=\"${d:-/}\"; done; exec python3 -B \"$d/harness/guard.py\" --dialect agy",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

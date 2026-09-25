@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -B \"${GROK_WORKSPACE_ROOT:-.}/harness/guard.py\" --dialect claude",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

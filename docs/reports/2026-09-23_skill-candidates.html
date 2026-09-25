@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>スキルの追加候補と決めること（2026-09-23）</title>
+<style>
+  :root{ --bg:#f7f5f0; --card:#fffdf9; --ink:#22201c; --dim:#645d54; --line:#dcd6cc; --ok:#1f7a4d; --ng:#a8322a; --wait:#9a6b12; --accent:#345c7d; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#16171a; --card:#1f2024; --ink:#ebe8e2; --dim:#a7a19a; --line:#34363b; --ok:#63c893; --ng:#f08a80; --wait:#e0b34d; --accent:#8fb8de; } }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;line-height:1.85;font-size:16px}
+  .wrap{max-width:920px;margin:0 auto;padding:24px 18px 80px}
+  header{border-bottom:3px solid var(--ink);padding-bottom:14px}
+  h1{font-size:1.6rem;margin:0 0 6px}
+  h2{font-size:1.2rem;margin:40px 0 8px;padding-left:12px;border-left:6px solid var(--accent)}
+  h3{font-size:1rem;margin:20px 0 4px;color:var(--dim)}
+  p,li{margin:8px 0}
+  .lead{color:var(--dim);font-size:.93rem}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:14px 0}
+  .scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.92rem}
+  th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+  th{background:color-mix(in srgb, var(--accent) 10%, transparent);font-weight:600;white-space:nowrap}
+  code{background:color-mix(in srgb, var(--ink) 8%, transparent);padding:1px 5px;border-radius:4px;font-family:ui-monospace,Consolas,monospace;font-size:.88em}
+  .ok{color:var(--ok);font-weight:700} .wait{color:var(--wait);font-weight:700} .ng{color:var(--ng);font-weight:700}
+  .note{border-left:5px solid var(--wait);background:color-mix(in srgb, var(--wait) 10%, transparent);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+  .ask{border:2px solid var(--accent);border-radius:10px;padding:14px 16px;margin:16px 0;background:color-mix(in srgb, var(--accent) 6%, transparent)}
+  .ask ol{margin:6px 0 0}
+  ul{padding-left:1.25em}
+  footer{margin-top:46px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:.85rem}
+  @media print{ body{background:#fff;color:#000} .card,.ask{border:1px solid #999} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>スキルの追加候補と、決めてほしいこと</h1>
+  <p class="lead">2026-09-23 ／ 今日 5 本を入れて 17 本になりました。ここから先の候補（Hugging Face、superpowers）と、文書の道具について、あなたの判断が要ります。返し方の例は最後にあります。</p>
+</header>
+
+<h2>1. 今日入れた 5 本（済み）</h2>
+<div class="scroll">
+<table>
+  <tr><th>名前</th><th>何をするか</th><th>別に要る道具</th></tr>
+  <tr><td><code>mcp-builder</code></td><td>MCP サーバー（エージェントに新しい道具を足す仕組み）を作る手引き</td><td>なし</td></tr>
+  <tr><td><code>docx</code></td><td>Word を読む・作る・直す</td><td>LibreOffice、npm の <code>docx</code>（読むだけなら <code>python-docx</code> か <code>markitdown</code>）</td></tr>
+  <tr><td><code>xlsx</code></td><td>Excel を読む・作る・直す</td><td><code>openpyxl</code>、LibreOffice</td></tr>
+  <tr><td><code>pptx</code></td><td>PowerPoint を読む・作る・直す</td><td><code>python-pptx</code>、<code>markitdown</code>、npm の <code>pptxgenjs</code>、LibreOffice</td></tr>
+  <tr><td><code>pdf</code></td><td>PDF を読む・結合・分割・作る・文字起こし</td><td><code>pypdf</code>、<code>pdfplumber</code>、<code>reportlab</code>。画像の PDF は <code>pdftotext</code>・<code>tesseract</code></td></tr>
+</table>
+</div>
+<div class="note">
+  <p><b>注意 2 つ。</b></p>
+  <ul>
+    <li><code>docx</code>・<code>xlsx</code>・<code>pptx</code> は、同じ 1.2 MB の部品（Office の書式の定義ファイル）を 3 重に持っています。上流の形のまま入れたので、スキル全体は 4.0 MB になりました。</li>
+    <li><b>スキルは「どの道具でどうやるか」を教えるだけで、道具そのものは別に要ります。</b>この機械には LibreOffice も <code>pypdf</code> も 1 つも入っていません。あなたの言う「PDF を読むために道具を入れていたエージェント」は、これからも道具を入れることになります。ただし、どれを入れるかはスキルが正しく指示するので、迷いと失敗は減ります。</li>
+  </ul>
+</div>
+
+<h2>2. 文書の道具を一括で入れる命令（提案）</h2>
+<div class="card">
+  <p><code>python3 harness/setup.py docs-tools</code> のような命令を 1 つ足し、要る物を<b>版を固定して</b>一括で入れられるようにします。自動では入れません（人が打ちます）。</p>
+  <ul>
+    <li>pip: <code>pypdf</code> <code>pdfplumber</code> <code>reportlab</code> <code>openpyxl</code> <code>python-docx</code> <code>python-pptx</code> <code>markitdown</code></li>
+    <li>OS の道具（別途）: LibreOffice、poppler（<code>pdftotext</code>）、tesseract（文字起こし）。これらは管理者の窓を通します</li>
+    <li>npm: <code>docx</code> <code>pptxgenjs</code>（作る側だけ。読むだけなら不要）</li>
+  </ul>
+  <p>入れると、スキルが「道具が無い」で止まらなくなります。</p>
+</div>
+
+<h2>3. meeting-copilot（済み）</h2>
+<div class="card">
+  <p>すでに <code>vendor/kagemusha/</code> に入っていて、<code>python3 harness/setup.py enable meeting-copilot --yes</code> で有効にできます。使うかどうかは置いておいて、そのまま持っておきます。</p>
+</div>
+
+<h2>4. Hugging Face の skills（Apache-2.0、★1.1 万、9/23 更新）</h2>
+<div class="card">
+  <p>26 本あります。中身は Hugging Face の周辺です。</p>
+  <ul>
+    <li>モデルの学習: <code>trl-training</code> <code>huggingface-llm-trainer</code> <code>huggingface-vision-trainer</code> <code>train-sentence-transformers</code></li>
+    <li>データセット・公開: <code>huggingface-datasets</code> <code>huggingface-spaces</code> <code>huggingface-paper-publisher</code></li>
+    <li>手元で動かす: <code>huggingface-local-models</code> <code>transformers-js</code></li>
+    <li>AWS 向け: <code>hf-cloud-*</code> の 5 本</li>
+    <li><b>入口: <code>hf-cli</code></b>（公式が「まずこれから」と勧めるもの。1 ファイル、33 KB）</li>
+  </ul>
+  <p><b>おすすめ: <code>hf-cli</code> の 1 本だけ入れる。</b>ほかの 25 本は <code>hf skills add &lt;名前&gt;</code> で<b>必要なときに取ってこられる</b>仕組みが上流にあり、同梱しなくて済みます。LLM の学習はこのハーネスの本筋（汎用の MoA）から離れた用途なので、入口だけ持って、あとは使う人が足す形が合っています。</p>
+</div>
+
+<h2>5. obra/superpowers（MIT、★29 万、9/22 更新）</h2>
+<p>15 本あります。<b>入れる価値があるのは 5 本、入れない方がよいのが 10 本</b>です。</p>
+
+<h3>入れる価値あり（5 本、合計 45 KB）</h3>
+<div class="scroll">
+<table>
+  <tr><th>名前</th><th>中身</th><th>このハーネスでの効き所</th><th>大きさ</th></tr>
+  <tr><td><code>verification-before-completion</code></td><td>「完了・直った・通った」と言う前に、必ず検証してから言う手順</td><td><code>AGENTS.md</code> の決まりそのもの。文章がこちらより具体的</td><td>3.6 KB</td></tr>
+  <tr><td><code>brainstorming</code></td><td>作る前に、問いと選択肢を出し切る手順</td><td>指示役が依頼書を書く前に使える</td><td>17 KB</td></tr>
+  <tr><td><code>writing-plans</code></td><td>仕様から手順書を作る型</td><td>大きめの依頼を切るときに</td><td>9 KB</td></tr>
+  <tr><td><code>receiving-code-review</code></td><td>指摘を受けたとき、鵜呑みにも反発にもしない手順</td><td>独立の確認の<b>差し戻しを受ける側</b>に効く</td><td>6 KB</td></tr>
+  <tr><td><code>test-driven-development</code></td><td>実装の前に試験を書く型</td><td>担い手の実装に</td><td>9.5 KB</td></tr>
+</table>
+</div>
+
+<h3>入れない方がよい（10 本）</h3>
+<div class="scroll">
+<table>
+  <tr><th>名前</th><th>理由</th></tr>
+  <tr><td><code>dispatching-parallel-agents</code>・<code>subagent-driven-development</code></td><td class="ng">CLI 標準の子エージェントを使う前提。このハーネスの決まり（担い手は <code>delegate.py</code> 経由だけ）と真っ向から衝突する</td></tr>
+  <tr><td><code>using-git-worktrees</code></td><td><code>delegate.py</code> が同じことを自動でやっている</td></tr>
+  <tr><td><code>systematic-debugging</code></td><td>入れた <code>diagnosing-bugs</code> と重なる</td></tr>
+  <tr><td><code>writing-skills</code></td><td>入れた <code>writing-for-agents</code> と重なる</td></tr>
+  <tr><td><code>using-superpowers</code>・<code>diagnosing-superpowers</code></td><td>この枠組み専用の接着剤。Claude Code 向けの hook を前提にしている</td></tr>
+  <tr><td><code>executing-plans</code></td><td>20 KB。自分で実装する人向けで、<code>worker</code> と重なる</td></tr>
+  <tr><td><code>requesting-code-review</code>・<code>finishing-a-development-branch</code></td><td>役立つが小さく、独立の確認と <code>handoff</code> でほぼ足りる。要るなら後で</td></tr>
+</table>
+</div>
+
+<h2>6. 決めてほしいこと</h2>
+<div class="ask">
+  <ol>
+    <li><b>文書の道具を一括で入れる命令</b>を <code>setup.py</code> に足しますか。（入れる / 入れない）</li>
+    <li><b><code>hf-cli</code></b> を 1 本入れますか。（入れる / 入れない）</li>
+    <li><b>superpowers</b> から、上の 5 本を入れますか。外したい物があれば名前を。（5 本とも / 一部 / 入れない）</li>
+  </ol>
+  <p>どれも、取り込む前に同じ検査（下見 → 無編集で写す → 出どころと hash を記録）を通します。</p>
+  <p class="lead">返し方の例: 「1 入れる、2 入れる、3 は brainstorming 以外」</p>
+</div>
+
+<footer>
+  正本は <code>harness/skills.json</code>（出どころ・hash）と <code>docs/PLAN.md</code>。今のスキルの一覧は <code>docs/reports/2026-09-23_skills.html</code>。数字は 2026-09-23 の実測。
+</footer>
+
+</div>
+</body>
+</html>

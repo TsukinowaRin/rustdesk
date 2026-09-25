@@ -1,0 +1,19 @@
+{
+ "_note": "担い手の編成のひな形。写して .loop/team.json にし、自分の環境に合わせて直す（.loop/ は git にも配布物にも入らない）。誰にどの仕事を頼むかは指示役が毎回決めるので、ここに『得意な仕事の種類』は書かない。書くのは事実（どの CLI・どのモデル・いくら・何本まで）と、人の覚え書きだけ。",
+ "_fields": {
+  "name": "呼び名。依頼書の member: に書く名前",
+  "cli": "harness/clis.json の CLI 名（claude / codex / agy / cursor / opencode / kilo / grok / omp / dsh）",
+  "model": "その CLI に渡すモデル名。空なら CLI の既定",
+  "vendor": "モデルを作った会社。独立の確認で『別の会社』を選ぶために使う",
+  "cost": "1〜5 の相対値。1 が安い",
+  "max_parallel": "同時に動かしてよい本数",
+  "quota_until": "枠切れの明け時刻（ISO 8601）。空なら使える",
+  "notes": "人の覚え書き（機械は読まない）。得意不得意は書き置きにせず、harness/evals/ で測って .loop/ に残す（時期で変わる）"
+ },
+ "members": [
+  {"name": "flash", "cli": "opencode", "model": "opencode-go/glm-5.3-flash", "vendor": "z-ai", "cost": 1, "max_parallel": 2, "quota_until": "", "notes": ""},
+  {"name": "deepseek", "cli": "dsh", "model": "", "vendor": "deepseek", "cost": 1, "max_parallel": 2, "quota_until": "", "notes": "起動は harness/dsh.sh 経由。モデルは dsh の設定で決める"},
+  {"name": "sol", "cli": "codex", "model": "gpt-5.6-sol", "vendor": "openai", "cost": 3, "max_parallel": 1, "quota_until": "", "notes": ""},
+  {"name": "opus", "cli": "claude", "model": "claude-opus-5", "vendor": "anthropic", "cost": 5, "max_parallel": 1, "quota_until": "", "notes": ""}
+ ]
+}

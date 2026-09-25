@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>配布物の独立テスト（2026-09-24）</title>
+<style>
+  :root{ --bg:#f7f5f0; --card:#fffdf9; --ink:#22201c; --dim:#645d54; --line:#dcd6cc; --ok:#1f7a4d; --ng:#a8322a; --wait:#9a6b12; --accent:#345c7d; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#16171a; --card:#1f2024; --ink:#ebe8e2; --dim:#a7a19a; --line:#34363b; --ok:#63c893; --ng:#f08a80; --wait:#e0b34d; --accent:#8fb8de; } }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;line-height:1.85;font-size:16px}
+  .wrap{max-width:920px;margin:0 auto;padding:24px 18px 80px}
+  header{border-bottom:3px solid var(--ink);padding-bottom:14px}
+  h1{font-size:1.6rem;margin:0 0 6px}
+  h2{font-size:1.2rem;margin:40px 0 8px;padding-left:12px;border-left:6px solid var(--accent)}
+  p,li{margin:8px 0}
+  .lead{color:var(--dim);font-size:.93rem}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:14px 0}
+  .scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.92rem}
+  th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+  th{background:color-mix(in srgb, var(--accent) 10%, transparent);font-weight:600;white-space:nowrap}
+  code{background:color-mix(in srgb, var(--ink) 8%, transparent);padding:1px 5px;border-radius:4px;font-family:ui-monospace,Consolas,monospace;font-size:.88em}
+  .ok{color:var(--ok);font-weight:700} .wait{color:var(--wait);font-weight:700} .ng{color:var(--ng);font-weight:700}
+  .note{border-left:5px solid var(--wait);background:color-mix(in srgb, var(--wait) 10%, transparent);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+  ul{padding-left:1.25em}
+  footer{margin-top:46px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>配布物を別の場所に展開して、GPT-6 Sol に使わせた</h1>
+  <p class="lead">2026-09-24 ／ 「テストプロジェクトをワークスペース内に作って、ハーネスを独立テストしてみて」「GPT-6 Sol を優先的に使用」の結果。指示役は Claude Fable 5.1、担い手は GPT-6 Sol（Codex）だけ。</p>
+</header>
+
+<h2>1. 結論</h2>
+<div class="card">
+  <ul>
+    <li><span class="ok">配布物は、別の場所に展開して動いた。</span>zip（2.5 MB）を <code>dist/test-project/</code> に展開し、点検が通り、担い手が仕事をして報告を返した。</li>
+    <li><span class="wait">不具合 2 件と、文書の古い記述 4 件を見つけて直した。</span>どれも、この repo の中で自分だけで試していたら見つからなかった物。</li>
+    <li><span class="wait">設計の穴 2 件は残っている</span>（担い手の成果を取り込む 1 手が無い / 費用の記録が無い）。下の 4 節。</li>
+    <li>GPT-6 Sol は 3 件で合計 149,194 トークン。速さは 1 件 3〜5 分。今日の変更（守りの既定）の独立の確認も GPT-6 Sol が通した。</li>
+  </ul>
+</div>
+
+<h2>2. 流した 3 件</h2>
+<div class="scroll">
+<table>
+  <tr><th>#</th><th>どこで</th><th>依頼</th><th>結果</th><th>秒</th><th>トークン</th></tr>
+  <tr><td>1</td><td>試験用 project</td><td>空の project で挨拶の道具と試験を作る</td><td class="ok">合格。受け入れ条件 4 つを指示役が作業木で再実行して確認</td><td>191</td><td>37,733</td></tr>
+  <tr><td>2</td><td>本体</td><td>守りの既定変更の独立の確認（実装を読む前に対を 17 件書いてから測る）</td><td class="ok">採用。16 件一致、抜け道 5 通り全部止まる、壊した 3 通り全部検出。不一致 1 件は設計どおり（作業場の中の削除は通す）</td><td>—</td><td>58,898</td></tr>
+  <tr><td>3</td><td>試験用 project</td><td>新規利用者として README と HARNESS.md の命令を順に打つ</td><td class="wait">古い記述 4 件、つまずき 3 件を報告</td><td>—</td><td>52,563</td></tr>
+</table>
+</div>
+
+<h2>3. 見つかって直した物</h2>
+<div class="scroll">
+<table>
+  <tr><th>何</th><th>誰が見つけた</th><th>直し</th></tr>
+  <tr><td>守りの試験が、展開先の branch が <code>master</code> だと落ちる（<code>git push</code> の場面が「今の branch は main ではない」前提だった）</td><td>展開して点検した指示役</td><td>使い捨ての repo で feature と master の両方を見る試験に</td></tr>
+  <tr><td>守りの試験が、担い手の中で流すと 2 件落ちる（表の試験が <code>HARNESS_ROLE=worker</code> を引き継ぎ、OK の印が効かない）</td><td>GPT-6 Sol（1 件目の報告）</td><td>表の試験の前に役の印を外す</td></tr>
+  <tr><td>README の古い記述: ファイル数「263 本」（実測 791）/「HARNESS.md は未着手」/「Kilo と Cursor は未確認」/ 試験の本数「7 本」</td><td>GPT-6 Sol（3 件目）</td><td>固定値を消し、事実に合わせた</td></tr>
+  <tr><td>展開直後に <code>delegate.py team</code> と <code>judgment.py brief</code> が終了 1 になる（編成と置き場がまだ無い）</td><td>GPT-6 Sol（3 件目）</td><td>動きは変えず、README の手順に「先に作る」と明記。<code>setup.py status</code> の「まだ」に打つ命令の全形を出す</td></tr>
+</table>
+</div>
+
+<h2>4. 残っている設計の穴</h2>
+<div class="note">
+  <ul>
+    <li><b>担い手の成果を取り込む 1 手が無い。</b>担い手は作業木に書くだけで commit しない。今日は指示役が作業木で commit してから merge した。<code>delegate.py adopt &lt;依頼ID&gt; &lt;担い手&gt;</code> のような命令が要る。</li>
+    <li><b>費用の記録が無い。</b>Codex の log には <code>tokens used</code> が残る（上の表の数字はそこから手で拾った）。<code>delegate.py stats</code> に列を足せば、どの担い手がいくら使ったかが見える。他の CLI は log の形を調べる必要がある。</li>
+  </ul>
+</div>
+
+<h2>5. AGENTS.md の 6 KB について</h2>
+<div class="card">
+  <p>上限はあなたが付けたものではなく、私が設計の軸として置いた物です（旧版は毎回読む量が 23 KB まで膨らんだ）。今は 54 行・5.9 KB・2,717 文字で、毎回の応答で読む量としては 3,000 トークン前後。大きくはありません。節ごとでは「守り」1.5 KB、「役とギア」「判断」「進め方」が 1 KB ずつと、決まりを圧縮して詰めています。上げるかどうかは、あなたの判断でよい所です。</p>
+</div>
+
+<footer>
+  記録: <code>docs/verification/2026-09-24_fresh-install/</code>（依頼書と報告）、<code>docs/verification/2026-09-24_guard-default/</code>（独立の確認）。試験用 project は <code>dist/test-project/</code>（git にも配布物にも入らない）。zip は <code>dist/harness-v3.1.0.zip</code>。
+</footer>
+
+</div>
+</body>
+</html>

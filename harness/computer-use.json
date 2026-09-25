@@ -1,0 +1,115 @@
+{
+ "_note": "画面操作（computer use）の MCP サーバーの一覧。**同梱しない。** 必要なときに、ここに書いた版を取ってくる。エージェントが動く場所ではなく、画面がある場所（使い捨ての仮想環境）で動かす。母艦とは HTTP でつなぐ。新しく足すときは、先に python3 harness/mcp_probe.py <起動の命令> で道具の一覧を見て、素性と動きを確かめる。",
+ "_policy_note": "どの環境でも下の env を付けて起動する。サーバー側が持っている守りで、ハーネスは自前で作らない。",
+ "policy_env": {
+  "COMPUTER_USE_ALLOWED_APPS": "依頼書で触ってよいと決めたアプリだけを並べる",
+  "COMPUTER_USE_CREDENTIAL_APPS": "パスワード管理・鍵の管理画面。触らせない",
+  "COMPUTER_USE_DESTRUCTIVE_REQUIRES_APPROVAL": "1",
+  "COMPUTER_USE_AUDIT_LOG": ".loop/computer-use/<依頼ID>.jsonl（監査役が後から読む）",
+  "COMPUTER_USE_FS_ROOTS": "作業用フォルダだけ"
+ },
+ "servers": {
+  "computer-use-mcp": {
+   "package": "@zavora-ai/computer-use-mcp",
+   "version": "7.4.0",
+   "license": "MIT",
+   "source": "https://github.com/zavora-ai/computer-use-mcp",
+   "os": [
+    "win32",
+    "darwin",
+    "linux"
+   ],
+   "launch": [
+    "npx",
+    "-y",
+    "@zavora-ai/computer-use-mcp@7.4.0"
+   ],
+   "transport": [
+    "stdio",
+    "http（COMPUTER_USE_HTTP_HOST / PORT）"
+   ],
+   "tools": 70,
+   "verified": {
+    "date": "2026-09-20",
+    "how": "① 使い捨ての Docker コンテナ（node:22-trixie-slim + Xvfb）② Windows Sandbox（harness/sandbox/windows/）",
+    "ok": [
+     "Docker: initialize / 道具 70 個 / 画面の大きさを認識",
+     "**Windows Sandbox: 診断 9/9 合格、画面 2032x1111 を認識、画像（JPEG 1024x559、215 KB）を取り出せた**"
+    ],
+    "ng": [
+     "Docker の素の Xvfb では撮影が失敗する（decode できない）。本物のデスクトップが要る"
+    ]
+   },
+   "gotchas": [
+    "**Windows: MSVC の実行時ライブラリ（vc_redist.x64.exe）が要る。**無いと initialize が Internal server error になり、stderr に The specified module could not be found と出る。読み取り専用の場所から直接実行すると入らないので、手元に写してから実行する",
+    "**Linux: native の部品が glibc 2.39 以上を要求する。**Debian bookworm（node:22-slim）では同じ症状になる。trixie / Ubuntu 24.04 以降を使う",
+    "素の Xvfb では撮影できない。本物のデスクトップの環境が要る",
+    "撮影の返事は **JPEG**（名前が .png でも中身は JPEG）。先頭のバイトで判断する",
+    "困ったら最初に doctor という道具を呼ぶ。環境を自己診断して、何が足りないか言う"
+   ]
+  },
+  "nuphus-mcp": {
+   "package": "（npm 配布なし。repo から取得）",
+   "version": "未確認",
+   "license": "MIT",
+   "source": "https://github.com/mrpulor-gh/nuphus-mcp",
+   "os": [
+    "win32",
+    "darwin",
+    "linux"
+   ],
+   "launch": [
+    "未確認"
+   ],
+   "tools": "画面・ウィンドウ・マウス・キーボード・Chrome。文字認識は手元で動く",
+   "verified": {
+    "date": null,
+    "how": "未実測",
+    "ok": [],
+    "ng": []
+   },
+   "gotchas": [
+    "Windows を推奨と README にある。Linux での画面の扱いは未確認"
+   ]
+  }
+ },
+ "environments": {
+  "windows-pro": {
+   "how": "Windows Sandbox（harness/sandbox/windows/ の台本。閉じると消える。管理者権限は不要）",
+   "desktop": true,
+   "verified": "**撮影まで通った（2026-09-20）**"
+  },
+  "windows-any": {
+   "how": "Hyper-V の使い捨ての仮想マシン（harness/sandbox/hyperv/vm.ps1。使い終わったら destroy）",
+   "desktop": true,
+   "verified": "2026-09-24 に撮影まで通した。Windows 11 dev environment（評価版）を差分ディスクで起動 → 母艦からのキー入力で台本を管理者として起動 → 診断 9/9 合格 → 1024x768 を撮影 → PowerShell Direct で母艦へ持ち出し → 削除。台本の開始から完了まで 174 秒。母艦の管理者権限は不要（Hyper-V Administrators に入れて再起動したあと）",
+   "gotchas": [
+    "統合サービスは名前でなく Id で選ぶ（OS の言語で名前が変わる）",
+    "Restart-VM -Force は電源断扱い。続けると Recovery 画面で止まる",
+    "差分ディスクの初回起動は heartbeat の後も画面が出るまで 1〜2 分かかる。キー入力は通るまで打ち直す",
+    "置き場は利用者の領域（既定の ProgramData は書けない）",
+    "母艦に既にある VM は触らない（名前が harness- の物しか作らず消さない）"
+   ]
+  },
+  "docker-linux": {
+   "how": "使い捨てのコンテナ。**画面まで要るなら desktop 入りの image**（素の Xvfb では撮影が失敗する。2026-09-20 実測）",
+   "desktop": "要追加",
+   "verified": "MCP の疎通まで"
+  },
+  "macos": {
+   "how": "Lume（Apple Silicon 前提。pull → clone → run → delete）",
+   "desktop": true,
+   "verified": false
+  },
+  "ubuntu": {
+   "how": "Docker、または使い捨ての仮想マシン",
+   "desktop": "要追加",
+   "verified": false
+  },
+  "wsl": {
+   "how": "使い捨ての WSL 環境（export した物を import し、終わったら unregister）",
+   "desktop": false,
+   "verified": false
+  }
+ }
+}

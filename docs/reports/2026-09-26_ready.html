@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ハーネス V3.1.0 — すぐに使える状態（2026-09-26 07:00）</title>
+<style>
+  :root{ --bg:#f7f5f0; --card:#fffdf9; --ink:#22201c; --dim:#645d54; --line:#dcd6cc; --ok:#1f7a4d; --ng:#a8322a; --wait:#9a6b12; --accent:#345c7d; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#16171a; --card:#1f2024; --ink:#ebe8e2; --dim:#a7a19a; --line:#34363b; --ok:#63c893; --ng:#f08a80; --wait:#e0b34d; --accent:#8fb8de; } }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;line-height:1.85;font-size:16px}
+  .wrap{max-width:960px;margin:0 auto;padding:24px 18px 80px}
+  header{border-bottom:3px solid var(--ink);padding-bottom:14px}
+  h1{font-size:1.6rem;margin:0 0 6px}
+  h2{font-size:1.2rem;margin:40px 0 8px;padding-left:12px;border-left:6px solid var(--accent)}
+  h3{font-size:1rem;margin:18px 0 4px;color:var(--dim)}
+  p,li{margin:8px 0}
+  .lead{color:var(--dim);font-size:.93rem}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:14px 0}
+  .scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.9rem}
+  th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+  th{background:color-mix(in srgb, var(--accent) 10%, transparent);font-weight:600;white-space:nowrap}
+  code{background:color-mix(in srgb, var(--ink) 8%, transparent);padding:1px 5px;border-radius:4px;font-family:ui-monospace,Consolas,monospace;font-size:.88em}
+  pre{background:color-mix(in srgb, var(--ink) 6%, transparent);padding:10px 12px;border-radius:8px;overflow-x:auto;font-size:.85rem;line-height:1.5}
+  .ok{color:var(--ok);font-weight:700} .wait{color:var(--wait);font-weight:700} .ng{color:var(--ng);font-weight:700}
+  .note{border-left:5px solid var(--wait);background:color-mix(in srgb, var(--wait) 10%, transparent);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:14px 0}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+  .kpi .l{color:var(--dim);font-size:.8rem}.kpi .v{font-size:1.6rem;font-weight:700;line-height:1.2}.kpi .s{color:var(--dim);font-size:.8rem}
+  ul{padding-left:1.25em}
+  footer{margin-top:46px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>ハーネス V3.1.0 — すぐに使える状態</h1>
+  <p class="lead">期限 2026-09-26 07:00 の仕上げ。何ができて、どう使い始め、何がまだかを 1 枚に。配布物は <code>dist/harness-v3.1.0.zip</code>、設計の正本は <code>docs/PLAN.md</code>、改善の輪は <code>docs/design/IMPROVE.md</code>。</p>
+</header>
+
+<div class="kpis">
+  <div class="kpi"><div class="l">対応 CLI</div><div class="v">9</div><div class="s">全部で守りの発火と担い手を実測</div></div>
+  <div class="kpi"><div class="l">skill</div><div class="v">27</div><div class="s">9 CLI すべてから見えて使える（実測）</div></div>
+  <div class="kpi"><div class="l">常時読む決まり</div><div class="v">47 行</div><div class="s">AGENTS.md 4.1 KB（上限 6 KB）</div></div>
+  <div class="kpi"><div class="l">守りの独立の確認</div><div class="v">3 往復</div><div class="s">3 社 4 モデル、最後は「閉じてよい」</div></div>
+  <div class="kpi"><div class="l">今日の依頼</div><div class="v">60 件超</div><div class="s">Sol 15 / Opus 12 / Astra 10 ほか</div></div>
+</div>
+
+<h2>1. 使い始め方（新しい作業場で）</h2>
+<div class="card">
+  <p>要る物は Python 3.11 以上と git。担い手に使う CLI にはサインインしておく。あとは <code>docs/HARNESS.md</code> の冒頭「入れてから最初の 1 件まで」のとおり。</p>
+<pre>unzip harness-v3.1.0.zip && cd harness-v3.1.0
+git init && git add -A && git commit -m init          # 担い手の作業木は HEAD から作る
+python3 harness/check.py                                # 点検（形 8 項目 + 試験）
+python3 harness/setup.py status                         # 「まだ」を書いてある命令で済ませる
+  #   通知:   python3 harness/setup.py notify skip|off|new|existing|selfhost
+  #   台帳:   python3 harness/judgment.py init --new   または  init --from &lt;既存の台帳の URL か path&gt;
+  #   編成:   cp harness/team.example.json .loop/team.json  → 人と決める（得意不得意は書かず、測る）
+python3 harness/delegate.py new "題名" --member &lt;名&gt;   # 依頼書の枠 → 目的・受け入れ条件・触ってよい場所を書く
+python3 harness/delegate.py run T-…                     # 担い手が別の作業木で動く。報告は .loop/tasks/T-…/report-*.md
+python3 harness/delegate.py adopt T-…                   # 合格なら取り込む（作業木で commit → 本流へ merge）
+python3 harness/dashboard_watch.py --serve 100.x.y.z:8765   # 見張り: 変化があったら描き直す。私設の網のスマホから見る</pre>
+  <p>秘密は repo に入れない。担い手にだけ渡す環境変数（例: CLIProxyAPI の鍵）は <code>.loop/worker.env</code> に。Telegram は <code>.loop/telegram.env</code> に token と chat ID。どちらも守りが読み書きを止める。</p>
+</div>
+
+<h2>2. できること（今夜の時点で実測済み）</h2>
+<div class="scroll">
+<table>
+  <tr><th>何</th><th>状態</th><th>実測</th></tr>
+  <tr><td>9 CLI を担い手として回す（Claude Code / Codex / Antigravity / Cursor / opencode / Kilo / Grok / oh-my-pi / DeepSeek Harness）</td><td class="ok">できる</td><td>同じ依頼を 9 本に流し 7 本合格。dsh と omp は鍵の問題（使う人が直せる）</td></tr>
+  <tr><td>守り（1 本の guard で 9 CLI）: 壊す命令・秘密・管理者・子エージェント・main への push は止まる。外へ出す操作は既定で承認画面を出さず止まり、判断カードへ。人が OK した 1 回だけ <code>HARNESS_APPROVED=1</code></td><td class="ok">できる</td><td>場面 124 + 入出力 101 の試験。別の会社 2 社の独立の確認を 3 往復</td></tr>
+  <tr><td>担い手の縛り: 作業木の外に書けない・守り自身を書けない・別の担い手を起こせない・履歴を消せない</td><td class="ok">できる</td><td>Astra 11 件 → Sol、Grok 7+2 件 → Opus、Grok の 3 回目で「閉じてよい」。既知の抜け 8 は SECURITY.md に</td></tr>
+  <tr><td>担い手の成果を取り込む <code>adopt</code>、守りの跡（guard_calls）、費用（Codex と Claude は取れる）、枠切れの自動再試行（1 時間後）と <code>retry</code>、<code>team --probe</code></td><td class="ok">できる</td><td><code>delegate.py stats</code> に列がある</td></tr>
+  <tr><td>担い手の評価 <code>delegate.py eval</code>（課題 3 種: 作る / 読んで答える / 直す）。割り振りは 人 → 台帳 → 測定 の順</td><td class="ok">できる</td><td>8 人 × 3 課題を実測（下の表）</td></tr>
+  <tr><td>判断の輪（Kagemusha を上流のまま）: 判断カード → 台帳 → 蒸留。台帳を作業場をまたいで共有（<code>init --from</code> / <code>sync</code>。台帳の repo にだけ push。秘密は入れない）</td><td class="ok">できる</td><td>Opus の独立の確認で URL の書き方違いの穴 1 つ → 直して取り込んだ（試験 58 場面）。ほかは全部期待どおり</td></tr>
+  <tr><td>案件のダッシュボード（数字は札・状態は色・カードは要点）。見張りで繰り返し更新、ブラウザは 30 秒で読み直す</td><td class="ok">できる</td><td>この機械で <code>http://100.71.16.5:8765/</code>（同じ tailnet から）</td></tr>
+  <tr><td>スマホから: Telegram に要点の 1 通（10 分に 1 通まで）、<code>/dash</code> で HTML が届く、返事は受信箱で ID に結ばれ <code>brief</code> の最初に出る</td><td class="ok">できる</td><td>本物で往復を確認（9/25 夜）: `/dash` で 2 秒で HTML、返事が依頼 ID に結ばれ brief に出る</td></tr>
+  <tr><td><b>中継 hub</b>（<code>harness/hub.py</code>）: 1 つの bot で作業場が何個でも。Telegram はグループの話題（トピック）で作業場ごとに会話欄、Discord は作業場ごとのチャンネル、Slack も同じ形。HTML の hub 画面（作業場の一覧 → 会話 → 返事の欄）。<code>/run</code> で外から指示役を起動</td><td class="ok">できる（Telegram の私信と hub 画面は本物。話題つきグループ・Discord・Slack は形と偽の API の試験まで）</td><td>Grok の独立の確認を 3 回（差し戻し 4 → 直し、4+2 → 直し、1 → 直し）。4 回目（宛先の再測）で合格、閉じた。残る 1 件は hub.json 自体の細工（作業場の外）で、記録のみ。設定は <code>~/.config/harness/</code>（hub.json と各 token。配布物には入らない）</td></tr>
+  <tr><td>使い捨ての Windows で画面操作（Windows Sandbox / Hyper-V。母艦の管理者権限なし）</td><td class="ok">できる</td><td>両方で撮影まで実測（9/20、9/24）</td></tr>
+  <tr><td>管理者の操作の窓（UAC / sudo。パスワードはエージェントを通らない）</td><td class="ok">できる</td><td>Hyper-V の設定で実使用</td></tr>
+  <tr><td>配布物を別の場所に展開して、文書だけで最初の依頼書まで</td><td class="ok">できる</td><td>2 回通した（9/24 GPT-6 Sol、9/25 Opus）。点検が通り「まだ」は 3 件</td></tr>
+</table>
+</div>
+
+<h2>3. 担い手の評価（1 周目、9/25。これが割り振りの「測定」の材料）</h2>
+<div class="scroll">
+<table>
+  <tr><th>担い手</th><th>合格</th><th>1 課題の平均秒</th><th>落とした課題</th></tr>
+  <tr><td>opus55（Claude Opus 5.5）</td><td>3/3</td><td>51</td><td>—</td></tr>
+  <tr><td>cursor（auto）</td><td>3/3</td><td>36</td><td>—</td></tr>
+  <tr><td>agy（Antigravity）</td><td>2/3</td><td>38</td><td>読んで答える</td></tr>
+  <tr><td>flash（opencode / GLM 5.3 Flash）</td><td>2/3</td><td>115</td><td>読んで答える</td></tr>
+  <tr><td>kilo（kilo-auto/free）</td><td>2/3</td><td>232</td><td>作る（時間切れ）</td></tr>
+  <tr><td>astra（GPT-6 Astra high）</td><td>2/3</td><td>45</td><td>読んで答える</td></tr>
+  <tr><td>deepseek / omp</td><td>0/3</td><td>—</td><td>鍵が無い（使う人が直せる）</td></tr>
+  <tr><td>sol6 / grok47</td><td>未評価</td><td>—</td><td>作業中だったので外した。実績は依頼 15 件・3 件で全部合格</td></tr>
+</table>
+</div>
+<p class="lead">得意不得意の説明書は持ちません（時期で変わる）。次に割り振るときは、あなたの指示 → 台帳の <code>topic: team</code> → この数字、の順で根拠にします。</p>
+
+<h2>4. 今日の改善の輪で直した物（要点）</h2>
+<div class="card">
+  <ul>
+    <li><b>守り</b>: 担い手が守り自身と本体の木を書き換えられた穴、別の担い手を起こせた穴、<code>git checkout --</code> で変更を消せた穴を塞ぎ、3 往復の独立の確認で閉じた。誤検知 2 つ（<code>/dev/null</code>、入れ子の repo）も直した。</li>
+    <li><b>担い手へ回す仕組み</b>: <code>stats</code> の嘘（報告なしも成功）、守りの跡、費用、<code>adopt</code>、試験の隔離、枠切れの自動再試行、<code>probe</code>、<code>worker.env</code>、<code>guard: edit</code>（守りを直す依頼だけの例外）。</li>
+    <li><b>文書</b>: 新規利用者の通し 2 回で見つかった古い記述と穴を直し、HARNESS.md の冒頭に「入れてから最初の 1 件まで」。AGENTS.md は 5.9 KB → 4.1 KB（指示役だけの決まりは leader skill へ）。</li>
+    <li><b>ダッシュボード</b>: 材料の JSON、受信箱、Telegram の橋、見張り、私設の網で配る、見た目の作り直し（「文字ばっかりで読みづらい」）。</li>
+    <li><b>台帳</b>: 作業場をまたいで共有（あなた専用の非公開 repo に本物で push 済み。配布物からは参照しない）。割り振りは 人 → 台帳 → 測定。</li>
+    <li><b>Codex の経路</b>: Codex / omp / dsh の 3 本とも CLIProxyAPI 経由（2 アカウントを束ねる）。担い手にだけ渡す鍵は <code>.loop/worker.env</code>。枠切れは自動で 1 時間後に再試行。</li>
+    <li><b>中継 hub</b>: 1 つのアプリから複数の作業場へ（設計 <code>docs/design/HUB.md</code>）。Telegram の設定は全体の置き場に 1 回だけ。</li>
+    <li><b>取り込んだ skill</b>: <code>test-audit</code>（openclaw、無編集）、<code>consulting-pptx-skill</code>（carnot-tech。Claude Code 専用の言い回し 3 か所と Chrome の path だけ、あなたの許可で最小限を改変。上流の hash と差分は <code>skills.json</code>）。<b>27 本が 9 CLI すべてから見えて使えることを実測</b>（<code>docs/verification/2026-09-26_skills-all-clis/</code>）。</li>
+  </ul>
+</div>
+
+<h2>5. まだの物（正直に）</h2>
+<div class="note">
+  <ul>
+            <li><b>トークンが取れるのは Codex と Claude だけ。</b>opencode / Kilo / Grok / Antigravity / Cursor は headless 出力の形を未調査（担い手は別の CLI を起こせないので、指示役の環境で調べる仕事）。</li>
+    <li><b>守りの既知の抜け 8</b>（<code>;</code> の直前の <code>\</code>、<code>timeout -s KILL</code>、<code>pushd</code>、<code>env -C</code> <code>tar -C</code> <code>git -C</code> <code>patch -d</code> <code>pip -t</code>）。SECURITY.md に書いた。</li>
+    <li><b>macOS と素の Ubuntu</b> では実機で通していない（Windows + WSL だけ）。</li>
+    <li><b>蒸留</b>の本番は未実施（訂正が 5 件たまるまで待ち）。</li>
+    <li>Cursor が守りを 2 回呼ぶ（害は無い）。</li>
+    <li><b>Discord と Slack の本物の往復</b>は token が入ってから（形と偽の API の試験は済み）。Telegram の話題つきグループも、グループを作ってから。</li>
+  </ul>
+</div>
+
+<h2>6. 今夜の失敗（記録）</h2>
+<div class="card">
+  <p>指示役（私）が作業木を片づけるとき、<code>git branch --merged</code> を「取り込み済み」の判定に使い、未取り込みの作業木 2 つを消しました（担い手は commit しないので、未着手でも merged に見える）。やり直しで 30〜45 分の遅れ。台帳（D-2026-09-25-11）と leader skill に「消す前に <code>status --short</code> が空で報告が採用済みであることを確かめる」と書きました。</p>
+</div>
+
+<footer>
+  記録: <code>docs/verification/</code>（独立の確認 6 組、新規展開 2 回、9 CLI の表、評価）。設計: <code>docs/design/</code>（IMPROVE / DASHBOARD / JUDGMENT-STORE / DESIGN）。判断: <code>.loop/judgment/decisions_journal.md</code>（この機械だけ）。
+</footer>
+
+</div>
+</body>
+</html>

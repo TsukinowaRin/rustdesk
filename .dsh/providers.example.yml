@@ -1,0 +1,20 @@
+# 見本: dsh に DeepSeek 以外のモデルを足す。使うときは providers.local.patch.yml へ写して直す
+# （*.local.patch.yml は git に入らず、harness/dsh.sh が自動で付ける）。
+# 鍵そのものはここに書かない。書くのは環境変数の名前だけで、値は dsh の画面（Models）か環境変数から入れる。
+# ChatGPT の契約で Codex を使うなら設定は要らない: bash harness/dsh.sh web → Models → Codex にサインイン（OAuth）。
+- id: llm-pi-ai
+  config:
+    providers:
+      opencode-go:                      # OpenCode Go（OpenAI 互換の入口）
+        displayName: OpenCode Go
+        apiKeyEnv: OPENCODE_GO_API_KEY
+        api: openai-completions
+        baseURL: https://opencode.ai/zen/go/v1
+        models:
+          - id: kimi-k2.7-code
+          - id: glm-5.1
+# 既定のモデルを変えるなら:
+# - id: agent-default-model
+#   config:
+#     provider: opencode-go
+#     model: kimi-k2.7-code

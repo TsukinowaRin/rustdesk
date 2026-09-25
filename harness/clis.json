@@ -1,0 +1,278 @@
+{
+ "_note": "9 本の CLI の接続の正本。点検（harness/check.py）はここを読み、各設定ファイルが guard.py を正しい dialect で呼んでいるかを確かめる。CLI を足すときは、ここに 1 項目と設定 1 枚。判定は足さない。",
+ "guard": "harness/guard.py",
+ "rules": "AGENTS.md",
+ "skills": ".agents/skills",
+ "clis": {
+  "claude": {
+   "bin": "claude",
+   "hooks": "開始あり",
+   "rules": "CLAUDE.md（@AGENTS.md を取り込む）",
+   "skills": ".claude/skills（写し。.agents/skills は読まない）",
+   "guard_config": ".claude/settings.json",
+   "dialect": "claude",
+   "must_contain": "harness/guard.py\\\" --dialect claude",
+   "headless": [
+    "claude",
+    "-p",
+    "--disallowedTools",
+    "Agent"
+   ],
+   "notes": "allow の一覧は、対話で 1 回「信頼する」に答えるまで無視される。hook は信頼の前から効く",
+   "worker": [
+    "claude",
+    "-p",
+    "--model",
+    "{model}",
+    "--disallowedTools",
+    "Agent",
+    "--permission-mode",
+    "bypassPermissions",
+    "--output-format",
+    "json",
+    "{prompt}"
+   ],
+   "leader": [
+    "claude",
+    "-p",
+    "--model",
+    "{model}",
+    "--disallowedTools",
+    "Agent",
+    "--permission-mode",
+    "bypassPermissions",
+    "--output-format",
+    "json",
+    "{prompt}"
+   ],
+   "prompt": "stdin",
+   "skills_mode": "mirror",
+   "skills_path": ".claude/skills",
+   "usage": "\"usage\"\\s*:\\s*\\{([^{}\\[\\]]*)"
+  },
+  "codex": {
+   "bin": "codex",
+   "hooks": "開始あり",
+   "rules": "AGENTS.md",
+   "skills": ".agents/skills",
+   "guard_config": ".codex/config.toml",
+   "dialect": "claude",
+   "must_contain": "d=\"$PWD\"; while [ ! -f \"$d/harness/guard.py\" ] && [ \"$d\" != \"/\" ]; do d=\"${d%/*}\"; d=\"${d:-/}\"; done; exec python3 -B \"$d/harness/guard.py\" --dialect claude",
+   "headless": [
+    "codex",
+    "exec",
+    "--dangerously-bypass-approvals-and-sandbox"
+   ],
+   "notes": "展開した直後は Codex の中で /hooks を 1 回承認するまで hook が動かない（黙って素通り）。無人で動かす前に必ず承認する",
+   "worker": [
+    "codex",
+    "exec",
+    "--dangerously-bypass-approvals-and-sandbox",
+    "--dangerously-bypass-hook-trust",
+    "--skip-git-repo-check",
+    "-m",
+    "{model}",
+    "{prompt}"
+   ],
+   "leader": [
+    "codex",
+    "exec",
+    "--dangerously-bypass-approvals-and-sandbox",
+    "--dangerously-bypass-hook-trust",
+    "--skip-git-repo-check",
+    "-m",
+    "{model}",
+    "{prompt}"
+   ],
+   "skills_mode": "native",
+   "usage": "tokens used\\s*\\n([\\d,]+)"
+  },
+  "agy": {
+   "bin": "agy",
+   "hooks": "開始なし",
+   "rules": "AGENTS.md",
+   "skills": ".agents/skills",
+   "guard_config": ".agents/hooks.json",
+   "dialect": "agy",
+   "must_contain": "d=\"$PWD\"; while [ ! -f \"$d/harness/guard.py\" ] && [ \"$d\" != \"/\" ]; do d=\"${d%/*}\"; d=\"${d:-/}\"; done; exec python3 -B \"$d/harness/guard.py\" --dialect agy",
+   "headless": [
+    "agy",
+    "--add-dir",
+    "{root}",
+    "--dangerously-skip-permissions",
+    "-p"
+   ],
+   "notes": "--add-dir に repo の絶対 path を渡さないと、hook も AGENTS.md も読まれない（9/17 実測: loaded 0 hooks.json）",
+   "worker": [
+    "agy",
+    "--add-dir",
+    "{root}",
+    "--dangerously-skip-permissions",
+    "--print-timeout",
+    "{timeout}s",
+    "--model",
+    "{model}",
+    "-p",
+    "{prompt}"
+   ],
+   "skills_mode": "native",
+   "usage": null
+  },
+  "cursor": {
+   "bin": "cursor-agent",
+   "hooks": "開始あり",
+   "rules": "AGENTS.md",
+   "skills": ".agents/skills",
+   "guard_config": ".cursor/hooks.json",
+   "dialect": "cursor",
+   "must_contain": "d=\"$PWD\"; while [ ! -f \"$d/harness/guard.py\" ] && [ \"$d\" != \"/\" ]; do d=\"${d%/*}\"; d=\"${d:-/}\"; done; exec python3 -B \"$d/harness/guard.py\" --dialect cursor",
+   "headless": [
+    "cursor-agent",
+    "-p",
+    "--trust",
+    "--force"
+   ],
+   "notes": "failClosed: true。無料の契約では --model auto が要る。画面なし（-p）の shell が固まる日がある（9/19〜20 は固まり、9/23 は返った。公式の掲示板に同じ報告あり）。Cursor は .claude/settings.json の hook も読むので、守りが 2 回呼ばれる（害は無い）",
+   "worker": [
+    "cursor-agent",
+    "-p",
+    "--trust",
+    "--force",
+    "--model",
+    "{model}",
+    "{prompt}"
+   ],
+   "skills_mode": "native",
+   "usage": null
+  },
+  "opencode": {
+   "bin": "opencode",
+   "hooks": "開始あり",
+   "rules": "AGENTS.md",
+   "skills": ".agents/skills",
+   "guard_config": ".opencode/plugins/guard.js",
+   "dialect": "plain",
+   "must_contain": "harness/guard_bridge.mjs",
+   "headless": [
+    "opencode",
+    "run",
+    "--dir",
+    "{root}"
+   ],
+   "notes": "plugin の tool.execute.before。「聞く」は出せないので止める側へ倒す",
+   "worker": [
+    "opencode",
+    "run",
+    "--dir",
+    "{root}",
+    "--model",
+    "{model}",
+    "{prompt}"
+   ],
+   "skills_mode": "native",
+   "usage": null
+  },
+  "kilo": {
+   "bin": "kilo",
+   "hooks": "開始あり",
+   "rules": "AGENTS.md",
+   "skills": ".agents/skills",
+   "guard_config": ".kilo/plugins/guard.js",
+   "dialect": "plain",
+   "must_contain": "harness/guard_bridge.mjs",
+   "headless": [
+    "kilo",
+    "run",
+    "--dir",
+    "{root}"
+   ],
+   "notes": "opencode と同じ作りの plugin。無料で動くのは kilo/kilo-auto/free（遅い: 1 往復 40〜130 秒。命令を実行せず文字を返すだけのことがある）。OpenCode Go の提供元は Kilo からは使えない。kilo.jsonc に $schema の行を自動で足す 担い手として動かすときは --dangerously-skip-permissions が要る（無いと bash の許可を auto-rejecting して報告も書けない。9/25 実測）。守りは plugin が呼ぶので、この旗は守りを外さない",
+   "worker": [
+    "kilo",
+    "run",
+    "--dir",
+    "{root}",
+    "--model",
+    "{model}",
+    "--dangerously-skip-permissions",
+    "{prompt}"
+   ],
+   "skills_mode": "config",
+   "skills_config": "kilo.jsonc",
+   "usage": null
+  },
+  "grok": {
+   "bin": "grok",
+   "hooks": "開始なし",
+   "rules": "AGENTS.md",
+   "skills": ".agents/skills",
+   "guard_config": ".grok/hooks/guard.json",
+   "dialect": "claude",
+   "must_contain": "${GROK_WORKSPACE_ROOT:-.}/harness/guard.py\\\" --dialect claude",
+   "headless": [
+    "grok",
+    "-p"
+   ],
+   "notes": "folder を信頼するまで project の hook は 0 本。command の中に未設定の $VAR があると hook を起動せず素通りにするので、変数は既定値つきの 1 つだけ",
+   "worker": [
+    "grok",
+    "-p",
+    "{prompt}"
+   ],
+   "skills_mode": "native",
+   "usage": null
+  },
+  "omp": {
+   "bin": "omp",
+   "hooks": "開始あり",
+   "rules": "AGENTS.md",
+   "skills": ".agents/skills",
+   "guard_config": ".omp/extensions/guard.ts",
+   "dialect": "plain",
+   "must_contain": "harness/guard_bridge.mjs",
+   "headless": [
+    "omp",
+    "-p",
+    "--auto-approve"
+   ],
+   "notes": "拡張は自動で読み込まれる。「聞く」は ctx.ui.confirm、出せない場では止める",
+   "worker": [
+    "omp",
+    "-p",
+    "--auto-approve",
+    "--model",
+    "{model}",
+    "{prompt}"
+   ],
+   "skills_mode": "native",
+   "usage": null
+  },
+  "dsh": {
+   "bin": "dsh（npx @deepseek-ai/dsh）",
+   "hooks": "開始あり",
+   "rules": "AGENTS.md",
+   "skills": ".agents/skills と .dsh/skills",
+   "guard_config": ".dsh/guard.patch.yml",
+   "dialect": "claude",
+   "must_contain": "configPath: ./.claude/settings.json",
+   "headless": [
+    "bash",
+    "harness/dsh.sh",
+    "--profile",
+    "headless"
+   ],
+   "notes": "プロジェクトの設定を自動では読まない。必ず harness/dsh.sh から起動する。hook の設定は Claude Code と共用",
+   "worker": [
+    "bash",
+    "harness/dsh.sh",
+    "--profile",
+    "headless",
+    "{prompt}"
+   ],
+   "skills_mode": "native",
+   "usage": null
+  }
+ },
+ "_worker_note": "worker は担い手として 1 回だけ起動する形。{root}=作業木の絶対 path / {model}=編成のモデル名（空なら CLI の既定）/ {prompt}=依頼文 / {timeout}=秒。prompt: stdin の CLI は依頼文を標準入力から渡す（引数に日本語を置くと権限の指定として読まれる CLI があるため）。",
+ "_skills_note": "スキルの編集元は .agents/skills/ の 1 か所（Agent Skills 標準）。native = そこを直接読む。mirror = その CLI 専用の写しが要る（python3 harness/sync_skills.py が作る）。config = 設定で置き場を指す。"
+}

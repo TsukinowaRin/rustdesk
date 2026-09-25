@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 harness/check.py:*)",
+      "Bash(python3 harness/judgment.py:*)",
+      "Bash(python3 harness/delegate.py:*)",
+      "Bash(python3 harness/setup.py status)",
+      "Bash(python3 tests/test_guard.py)",
+      "Bash(python3 tests/test_judgment.py)",
+      "Bash(python3 tests/test_setup.py)",
+      "Bash(python3 tests/test_dsh_launcher.py)",
+      "Bash(python3 tests/test_wiring.py)"
+    ],
+    "deny": ["Agent"]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -B \"${CLAUDE_PROJECT_DIR:-.}/harness/setup.py\" auto"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -B \"${CLAUDE_PROJECT_DIR:-.}/harness/guard.py\" --dialect claude",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

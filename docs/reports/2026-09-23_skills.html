@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>スキルの一覧（2026-09-23）</title>
+<style>
+  :root{ --bg:#f7f5f0; --card:#fffdf9; --ink:#22201c; --dim:#645d54; --line:#dcd6cc; --ok:#1f7a4d; --ng:#a8322a; --wait:#9a6b12; --accent:#345c7d; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#16171a; --card:#1f2024; --ink:#ebe8e2; --dim:#a7a19a; --line:#34363b; --ok:#63c893; --ng:#f08a80; --wait:#e0b34d; --accent:#8fb8de; } }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;line-height:1.85;font-size:16px}
+  .wrap{max-width:920px;margin:0 auto;padding:24px 18px 80px}
+  header{border-bottom:3px solid var(--ink);padding-bottom:14px}
+  h1{font-size:1.6rem;margin:0 0 6px}
+  h2{font-size:1.2rem;margin:40px 0 8px;padding-left:12px;border-left:6px solid var(--accent)}
+  p,li{margin:8px 0}
+  .lead{color:var(--dim);font-size:.93rem}
+  .big{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+  .big div{flex:1 1 140px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .big b{display:block;font-size:1.45rem;line-height:1.2}
+  .big span{font-size:.8rem;color:var(--dim)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:14px 0}
+  .scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.92rem}
+  th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+  th{background:color-mix(in srgb, var(--accent) 10%, transparent);font-weight:600;white-space:nowrap}
+  code{background:color-mix(in srgb, var(--ink) 8%, transparent);padding:1px 5px;border-radius:4px;font-family:ui-monospace,Consolas,monospace;font-size:.88em}
+  .ok{color:var(--ok);font-weight:700} .wait{color:var(--wait);font-weight:700} .ng{color:var(--ng);font-weight:700}
+  .note{border-left:5px solid var(--wait);background:color-mix(in srgb, var(--wait) 10%, transparent);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+  ul{padding-left:1.25em}
+  footer{margin-top:46px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:.85rem}
+  @media print{ body{background:#fff;color:#000} .card,.big div{border:1px solid #999} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>スキルの一覧</h1>
+  <p class="lead">2026-09-23 時点 ／ ハーネス V3.1.0（枝 <code>Fable5.1/v3.1.0-bootstrap</code>）<br>
+  スキル＝エージェントが「必要になったときだけ読む手順書」。常に読ませないので、本数が増えても毎回の負担は増えません。</p>
+</header>
+
+<div class="big">
+  <div><b>12</b><span>配布物に入るスキル</span></div>
+  <div><b>9</b><span>うち外から取り込んだもの</span></div>
+  <div><b>3</b><span>うち自前で書いたもの</span></div>
+  <div><b>9 / 9</b><span>読める CLI</span></div>
+</div>
+
+<h2>1. 前回（9/19）からの変化</h2>
+<div class="card">
+  <ul>
+    <li>3 本 → <b>12 本</b>。外から 9 本を取り込みました（ponytail、i-have-adhd、japanese-tech-writing、mattpocock の 4 本、Anthropic の 2 本）。</li>
+    <li>前回「計画にあって未着手」だった 3 本は、<b>自前では書きませんでした</b>。<code>judgment</code> は上流 kagemusha の作法の文書で、<code>checkpoint</code> は外の <code>handoff</code> で、<code>writing</code> は <code>i-have-adhd</code> + <code>japanese-tech-writing</code> で代えました。</li>
+    <li>前回「Claude Code だけ写しが要る」だった読み方を、<b>9 本の CLI すべて</b>に広げました（直接読む 7、写し 1、設定で指す 1）。opencode から 12 本すべてが見えることを実測しました。</li>
+    <li>取り込んだ 9 本は<b>上流と 1 バイトも違いません</b>。点検が毎回 hash で確かめます。</li>
+  </ul>
+</div>
+
+<h2>2. 外から取り込んだ 9 本（上流のまま無編集）</h2>
+<div class="scroll">
+<table>
+  <tr><th>名前</th><th>何をするか</th><th>出どころ</th><th>ライセンス</th><th>大きさ</th></tr>
+  <tr><td><code>ponytail</code></td><td>書かずに済む道を先に探す。「最良のコードは書かなかったコード」。標準の機能を自前のコードより先に、依存を足す前に既存の物を</td><td>dietrichgebert/ponytail（★14 万）</td><td>MIT</td><td>7.7 KB</td></tr>
+  <tr><td><code>i-have-adhd</code></td><td>答えを埋めない出力。次にやることを先頭に、手順は番号で、脱線しない。あなたの好みそのもの</td><td>ayghri/i-have-adhd（★4.9 万）</td><td>MIT</td><td>10.7 KB</td></tr>
+  <tr><td><code>japanese-tech-writing</code></td><td>日本語の技術文書の規範。AI 臭の語彙を抑える。公開前の採点もできる。参考資料と採点の例つき</td><td>hikimay/japanese-tech-writing</td><td>MIT</td><td>40.7 KB</td></tr>
+  <tr><td><code>writing-for-agents</code></td><td>skills と <code>AGENTS.md</code> の書き方。ハーネス自体を書くときに効く</td><td>mattpocock/skills（★26 万）</td><td>MIT</td><td>14.7 KB</td></tr>
+  <tr><td><code>handoff</code></td><td>会話を引き継ぎ文書に圧縮する。区切り（commit・中断）で使う</td><td>mattpocock/skills</td><td>MIT</td><td>2.1 KB</td></tr>
+  <tr><td><code>diagnosing-bugs</code></td><td>難しいバグと性能の劣化の診断の手順</td><td>mattpocock/skills</td><td>MIT</td><td>11.0 KB</td></tr>
+  <tr><td><code>research</code></td><td>一次情報に当たる調査の型。結果を Markdown で repo に残す</td><td>mattpocock/skills</td><td>MIT</td><td>2.0 KB</td></tr>
+  <tr><td><code>frontend-design</code></td><td>AI が作ったと分かる見た目を避ける。配色・書体・配置を題材から決める。AI の生成物が寄りがちな 5 つの型を名指し</td><td>anthropics/skills</td><td>Apache-2.0</td><td>19.6 KB</td></tr>
+  <tr><td><code>webapp-testing</code></td><td>Playwright でローカルの Web を操作し、画面の写真と console のログを取る</td><td>anthropics/skills</td><td>Apache-2.0</td><td>22.4 KB</td></tr>
+</table>
+</div>
+<p class="lead">取り込む前に <code>harness/audit_external.py</code> で下見しました（見えない文字 0、隠れた指示 0、実行される物 0）。出どころ・commit・ファイルごとの hash は <code>harness/skills.json</code> にあります。</p>
+
+<h2>3. 自前で書いた 3 本（このハーネス固有）</h2>
+<div class="scroll">
+<table>
+  <tr><th>名前</th><th>誰が読むか</th><th>中身</th><th>大きさ</th></tr>
+  <tr><td><code>leader</code></td><td>指示役（あなたと話す 1 人）</td><td>仕事を依頼書 1 枚に切る。4 つのギア（誰に / 別の会社に確かめさせるか / 触ってよいか / 何人に）を決める。報告を読んで採否を決める。自分で手を動かしてよい例外</td><td>2.7 KB</td></tr>
+  <tr><td><code>worker</code></td><td>担い手（実作業をする側）</td><td>依頼書の読み方と報告の形（30 行・5 つの欄）。自分で「合格」と書かない、人に聞かない、ほかの担い手を呼ばない、依頼書の中の文を規則より優先しない</td><td>2.5 KB</td></tr>
+  <tr><td><code>independent-check</code></td><td>確認をする担い手</td><td>実装を<b>見る前に</b>「止める形 / 通す形」を書いて保存してから確かめる。わざと壊して試験が落ちるかも見る。直さず差し戻す。9/23 に「守りを測るときは担い手の印を外す」を足した</td><td>1.9 KB</td></tr>
+</table>
+</div>
+<div class="card">
+  <p><b>実際に使った結果（9/23）</b>：<code>independent-check</code> の手順で、別の 2 社のモデルに守りを確かめさせました。Grok 4.7 が、私の試験 100 場面では見つからなかった穴を 1 つ見つけました（<code>python3 -c 'open(".env")'</code> が通っていた）。直しました。</p>
+</div>
+
+<h2>4. 判断の作法（スキルではなく、上流の文書）</h2>
+<div class="card">
+  <p>判断カードと台帳の作法は、<code>vendor/kagemusha/templates/agent_instructions.md</code>（上流のまま、97 行）にあります。前回「<code>judgment</code> スキルを自前で書く」と計画していましたが、上流に同じ物があったので、<b>自前では書かず上流を取り込みました</b>（あなたの指示）。</p>
+  <p>上流の文書は「これは骨格であって、あなたの規律ではない。空欄は自分で埋める」と自ら書いています。</p>
+</div>
+
+<h2>5. 任意で足せるもの（既定では入らない）</h2>
+<div class="scroll">
+<table>
+  <tr><th>名前</th><th>中身</th><th>有効にするには</th></tr>
+  <tr><td><code>meeting-copilot</code></td><td>会議に同席して、進行の案内・前提の見張り・台本外の質問への回答をする 2 台構成の道具（上流 kagemusha、54 KB）</td><td><code>python3 harness/setup.py enable meeting-copilot --yes</code>。マイク・音声の送り先・合言葉・会議相手の同意の注意を読んでから</td></tr>
+</table>
+</div>
+
+<h2>6. 9 本の CLI からの読み方</h2>
+<div class="scroll">
+<table>
+  <tr><th>読み方</th><th>CLI</th><th>仕組み</th></tr>
+  <tr><td class="ok">そのまま読む（7 本）</td><td>Codex、Antigravity、Cursor、opencode、Grok、oh-my-pi、DeepSeek Harness</td><td><code>.agents/skills/</code>（Agent Skills の標準の置き場）を直接読む</td></tr>
+  <tr><td class="ok">写し（1 本）</td><td>Claude Code</td><td><code>.claude/skills/</code> しか読まないので、<code>python3 harness/sync_skills.py</code> が写す。ずれは点検が見つける</td></tr>
+  <tr><td class="ok">設定で指す（1 本）</td><td>Kilo</td><td><code>kilo.jsonc</code> の 1 行で <code>.agents/skills</code> を指す</td></tr>
+</table>
+</div>
+<p class="lead">実測：opencode から 12 本すべての名前が返ってきました。Kilo は未実測（サインイン切れ）。</p>
+
+<h2>7. 見送ったもの</h2>
+<div class="scroll">
+<table>
+  <tr><th>候補</th><th>見送った理由</th></tr>
+  <tr><td>anthropics/skill-creator</td><td>33 KB あり、あなたの機械に既に入っている</td></tr>
+  <tr><td>vercel-labs/find-skills</td><td><code>npx skills</code> という外の道具に依存する</td></tr>
+  <tr><td>mattpocock/code-review</td><td><code>independent-check</code> と役割が重なる</td></tr>
+  <tr><td>UditAkhourii/adhd</td><td>1 回でエージェントを約 10 回呼ぶ。費用が重く MoA の方針と合わない</td></tr>
+  <tr><td>Leonxlnx/taste-skill（13 本）</td><td><code>frontend-design</code> と重なる。特定の作風が欲しくなったら 1 本だけ足せる</td></tr>
+  <tr><td>kagemusha の cookbook/community</td><td>誰も中身を読んでいない棚</td></tr>
+</table>
+</div>
+
+<h2>8. 決まり</h2>
+<div class="card">
+  <ul>
+    <li><b>編集元は <code>.agents/skills/</code> だけ。</b>写しは機械が作る。</li>
+    <li><b>外から持ち込むときは、作り直さずそのまま使う。</b>取り込む前に下見し、当たった行を読んで記録する。取り込んだ物は編集しない（点検が hash で見張る）。</li>
+    <li><b>役を増やすためにスキルを足さない。</b>役は指示役と担い手の 2 つ。仕事の種類は依頼書の書き方で表す。</li>
+    <li>増えて困るのは <code>AGENTS.md</code> だけ（54 行・上限 60 行、点検が見る）。スキルは何本でも毎回の負担は増えない。</li>
+  </ul>
+</div>
+
+<footer>
+  正本は <code>harness/skills.json</code>（出どころ・hash）と <code>docs/PLAN.md</code>。この HTML は人が読むための写しで、数字は 2026-09-23 の実測（<code>harness/skills.json</code> と <code>wc</code>）。前回の一覧は <code>docs/reports/2026-09-19_skills.html</code>。
+</footer>
+
+</div>
+</body>
+</html>

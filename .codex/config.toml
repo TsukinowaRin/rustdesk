@@ -1,0 +1,19 @@
+# Codex の設定。守りは全 CLI 共通の harness/guard.py を呼ぶだけ。
+# 展開した直後は、Codex の中で /hooks を 1 回承認するまで hook が動かない（docs/SECURITY.md）。
+[features]
+hooks = true
+multi_agent = false   # 標準の子エージェントは使わない（AGENTS.md）
+
+[[hooks.SessionStart]]
+
+[[hooks.SessionStart.hooks]]
+type = "command"
+command = 'd="$PWD"; while [ ! -f "$d/harness/setup.py" ] && [ "$d" != "/" ]; do d="${d%/*}"; d="${d:-/}"; done; exec python3 -B "$d/harness/setup.py" auto'
+
+[[hooks.PreToolUse]]
+matcher = ".*"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = 'd="$PWD"; while [ ! -f "$d/harness/guard.py" ] && [ "$d" != "/" ]; do d="${d%/*}"; d="${d:-/}"; done; exec python3 -B "$d/harness/guard.py" --dialect claude'
+timeout = 30

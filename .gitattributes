@@ -1,1 +1,5 @@
 * text=auto
+# multiagent-harness: 取り込んだ skill と vendor は上流のバイト列のまま（hash で点検する）
+/.agents/** -text
+/.claude/skills/** -text
+/vendor/** -text

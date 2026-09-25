@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hyper-V で撮影まで通った（2026-09-24）</title>
+<style>
+  :root{ --bg:#f7f5f0; --card:#fffdf9; --ink:#22201c; --dim:#645d54; --line:#dcd6cc; --ok:#1f7a4d; --ng:#a8322a; --wait:#9a6b12; --accent:#345c7d; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#16171a; --card:#1f2024; --ink:#ebe8e2; --dim:#a7a19a; --line:#34363b; --ok:#63c893; --ng:#f08a80; --wait:#e0b34d; --accent:#8fb8de; } }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;line-height:1.85;font-size:16px}
+  .wrap{max-width:920px;margin:0 auto;padding:24px 18px 80px}
+  header{border-bottom:3px solid var(--ink);padding-bottom:14px}
+  h1{font-size:1.6rem;margin:0 0 6px}
+  h2{font-size:1.2rem;margin:40px 0 8px;padding-left:12px;border-left:6px solid var(--accent)}
+  p,li{margin:8px 0}
+  .lead{color:var(--dim);font-size:.93rem}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:14px 0}
+  .scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.92rem}
+  th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+  th{background:color-mix(in srgb, var(--accent) 10%, transparent);font-weight:600;white-space:nowrap}
+  code{background:color-mix(in srgb, var(--ink) 8%, transparent);padding:1px 5px;border-radius:4px;font-family:ui-monospace,Consolas,monospace;font-size:.88em}
+  .ok{color:var(--ok);font-weight:700} .wait{color:var(--wait);font-weight:700} .ng{color:var(--ng);font-weight:700}
+  .note{border-left:5px solid var(--wait);background:color-mix(in srgb, var(--wait) 10%, transparent);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+  img{max-width:100%;border:1px solid var(--line);border-radius:8px}
+  ul{padding-left:1.25em}
+  footer{margin-top:46px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Hyper-V の使い捨て Windows で、撮影まで通った</h1>
+  <p class="lead">2026-09-24 ／ 「撮影までテストしてみて。環境は Sandbox と Hyper-V の両方」の Hyper-V 側の結果。Sandbox 側は 9/20 に済み。あわせて「Hook で毎回承認を求められて止まる」の対処も書いた。</p>
+</header>
+
+<h2>1. 結論</h2>
+<div class="card">
+  <ul>
+    <li><span class="ok">通った。</span>Hyper-V の中の Windows 11（評価版）で、画面操作の MCP サーバーが起動し、診断 9/9 合格、1024x768 の画面を 1 枚撮って母艦へ持ち出せた。</li>
+    <li>台本の開始から完了まで <b>174 秒</b>。母艦の管理者権限は<b>使っていない</b>（UAC を通すのは VM の中だけ）。</li>
+    <li>使い終わった VM は消した。母艦に残したのは元の OS のディスク（45 GB、<code>C:\Users\muro\harness-vm\dl\</code>）だけ。zip（23 GB）は消した。既存の「Codex VM」は触っていない。</li>
+  </ul>
+  <img src="2026-09-24_hyperv-shot.jpg" alt="VM の中から撮った画面。管理者の PowerShell とスタートメニューが写っている" width="640">
+  <p class="lead">↑ VM の中の MCP サーバーが撮った 1 枚。左上に台本の出力、手前にスタートメニュー（キー入力の Win キーが 1 回余分に効いたもの。撮影には影響なし）。</p>
+</div>
+
+<h2>2. Sandbox と Hyper-V の使い分け</h2>
+<div class="scroll">
+<table>
+  <tr><th></th><th>Windows Sandbox（9/20）</th><th>Hyper-V（9/24）</th></tr>
+  <tr><td>要るもの</td><td>Windows Pro 以上。機能を有効化</td><td>Windows Pro 以上。利用者を Hyper-V Administrators に入れて再起動（管理者の窓を 1 回）</td></tr>
+  <tr><td>元の OS</td><td>母艦の Windows を流用（用意なし）</td><td>評価版を 1 回だけ取る（23 GB → 45 GB）</td></tr>
+  <tr><td>起動〜撮影</td><td>約 2 分</td><td>約 5 分（初回起動の待ち + 174 秒）</td></tr>
+  <tr><td>持ち込み / 持ち出し</td><td>共有フォルダ（in は読み取り専用、out）</td><td><code>Copy-VMFile</code>（一方通行）/ PowerShell Direct で読む</td></tr>
+  <tr><td>台本の起動</td><td>LogonCommand</td><td>母艦からのキー入力（Win+R → 管理者として powershell → UAC に Alt+Y）</td></tr>
+  <tr><td>同時に</td><td>1 つだけ</td><td>何個でも（メモリ次第）</td></tr>
+  <tr><td>中の状態を残す</td><td>できない（閉じると消える）</td><td>差分ディスクなので、残す・戻す・複製が自由</td></tr>
+  <tr><td>向く場面</td><td>1 回きりの画面操作</td><td>状態を作り込む・並べて動かす・Sandbox が無い機械</td></tr>
+</table>
+</div>
+
+<h2>3. つまずいた所（全部、台本と README に反映済み）</h2>
+<div class="scroll">
+<table>
+  <tr><th>何</th><th>どう直したか</th></tr>
+  <tr><td>統合サービスの名前が日本語（「ゲスト サービス インターフェイス」）で、英語名では見つからない</td><td>Id で選ぶ</td></tr>
+  <tr><td><code>Restart-VM -Force</code> を 2 回続けたら Windows が Recovery 画面で止まった</td><td>再起動そのものをやめた（台本はキー入力で起動）</td></tr>
+  <tr><td>Startup フォルダに台本を置いても、パスワードを付ける <code>net user</code> が UAC で断られる</td><td>管理者として起動し、UAC を Alt+Y で通す</td></tr>
+  <tr><td>初回起動は heartbeat が OK でも画面が出るまで 1〜2 分。早く打ったキーは捨てられる</td><td>パスワードが通るまで 40 秒ごとに打ち直す。台本側は 2 重起動を防ぐ印を置く</td></tr>
+  <tr><td>WSL の curl で <code>/mnt/c</code> に書くと 13 MB/s（Windows 側の curl.exe なら 225 MB/s）</td><td>Windows 側で取る</td></tr>
+</table>
+</div>
+
+<h2>4. 「Hook で毎回承認を求められて止まる」の対処</h2>
+<div class="card">
+  <p>この機械の Claude Code に <code>HARNESS_UNATTENDED=1</code> を付けた（<code>.claude/settings.local.json</code>。git には入らない）。<b>Claude Code を起動し直すと効く。</b></p>
+  <ul>
+    <li>効くと: 守りが「聞く」判定を出す操作（push、外へ送る、変数の path の削除など）は<b>承認待ちの画面を出さず</b>、その場では実行せずに判断カードを 1 枚書いて次の仕事へ進む。あとでまとめて裁定できる。</li>
+    <li>止まる原因だった「変数の path を rm する」書き方は、指示役が使わないようにした（決め打ちの path にする）。</li>
+    <li>この言葉は台帳 <code>D-2026-09-24-01</code> に、あなたの言葉のまま書いた。</li>
+  </ul>
+</div>
+
+<h2>5. 残り</h2>
+<ul>
+  <li>zip v3.1.0（P7）: <code>.loop/</code> が入っていないこと、展開先で点検が通ることを確かめて出す。</li>
+  <li>macOS（Lume）と Ubuntu / WSL の使い捨て環境は、同じ 5 つの動詞（create / setup / run / fetch / destroy）で台本を書く。Docker は Xvfb 単体だと撮影が失敗する（9/20 実測）ので、VNC 付きのデスクトップ像で試す。</li>
+</ul>
+
+<footer>
+  正本: <code>harness/sandbox/hyperv/README.md</code>（手順と落とし穴）、<code>harness/computer-use.json</code>（OS ごとの実測）、<code>docs/PLAN.md</code>。数字は 2026-09-24 の実測。
+</footer>
+
+</div>
+</body>
+</html>
