@@ -747,7 +747,20 @@ class InputModel {
     }
   }
 
+  // Personal build: leave hardware volume keys to Android, so they change the
+  // phone's volume instead of the remote machine's.
+  static bool _isVolumeKey(PhysicalKeyboardKey p, LogicalKeyboardKey l) =>
+      p == PhysicalKeyboardKey.audioVolumeUp ||
+      p == PhysicalKeyboardKey.audioVolumeDown ||
+      p == PhysicalKeyboardKey.audioVolumeMute ||
+      l == LogicalKeyboardKey.audioVolumeUp ||
+      l == LogicalKeyboardKey.audioVolumeDown ||
+      l == LogicalKeyboardKey.audioVolumeMute;
+
   KeyEventResult handleRawKeyEvent(RawKeyEvent e) {
+    if (isAndroid && _isVolumeKey(e.physicalKey, e.logicalKey)) {
+      return KeyEventResult.ignored;
+    }
     if (_localFlutterShortcuts.tryDispatchRaw(e)) return KeyEventResult.handled;
     if (isViewOnly) {
       if (isWeb && !isInputSourceFlutter) return KeyEventResult.ignored;
@@ -844,6 +857,9 @@ class InputModel {
   }
 
   KeyEventResult handleKeyEvent(KeyEvent e) {
+    if (isAndroid && _isVolumeKey(e.physicalKey, e.logicalKey)) {
+      return KeyEventResult.ignored;
+    }
     if (_localFlutterShortcuts.tryDispatch(e)) return KeyEventResult.handled;
     if (isViewOnly) {
       if (isWeb && !isInputSourceFlutter) return KeyEventResult.ignored;
