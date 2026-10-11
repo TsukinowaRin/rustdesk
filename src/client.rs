@@ -4406,6 +4406,13 @@ fn activate_os(interface: &impl Interface, send_left_click: bool) {
     send_mouse(0, 0, 0, false, false, false, false, interface);
     std::thread::sleep(Duration::from_millis(50));
     send_mouse(0, 3, 3, false, false, false, false, interface);
+    // Personal build: moving the cursor is enough to wake the display. A
+    // click lands in whatever window sits at the top-left of an unlocked
+    // desktop (a right click pastes in Windows Terminal), so only click
+    // when the OS password is about to be typed into the lock screen.
+    if !send_left_click {
+        return;
+    }
     let (click_down, click_up) = if send_left_click {
         (left_down, left_up)
     } else {

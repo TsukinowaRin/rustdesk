@@ -1831,7 +1831,7 @@ impl<T: InvokeUiSession> Interface for Session<T> {
             if !self.is_view_camera() {
                 self.try_change_init_resolution(pi.current_display);
                 let p = self.lc.read().unwrap().should_auto_login();
-                if !p.is_empty() {
+                if !p.is_empty() && peer_is_locked(&pi.platform_additions) {
                     input_os_password(p, true, self.clone());
                 }
             }
@@ -2087,4 +2087,13 @@ async fn start_one_port_forward<T: InvokeUiSession>(
 async fn send_note(url: String, id: String, sid: u64, note: String) {
     let body = serde_json::json!({ "id": id, "session_id": sid, "note": note });
     allow_err!(crate::post_request(url, body.to_string(), "").await);
+}
+
+// Personal build: type the saved OS password only when the peer reports a
+// locked screen, so it never goes into a window on an unlocked desktop.
+fn peer_is_locked(platform_additions: &str) -> bool {
+    serde_json::from_str::<serde_json::Value>(platform_additions)
+        .ok()
+        .and_then(|v| v.get("is_locked").and_then(|b| b.as_bool()))
+        == Some(true)
 }

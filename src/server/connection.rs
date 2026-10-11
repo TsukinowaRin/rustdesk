@@ -1975,6 +1975,16 @@ impl Connection {
                 "supported_privacy_mode_impl".into(),
                 json!(privacy_mode::get_supported_privacy_mode_impl()),
             );
+            // Personal build: lets the client type the saved OS password only
+            // when the screen is really locked.
+            platform_additions.insert(
+                "is_locked".into(),
+                json!(
+                    crate::platform::is_prelogin()
+                        || crate::platform::is_locked()
+                        || crate::platform::is_logon_ui().unwrap_or(false)
+                ),
+            );
         }
         #[cfg(target_os = "macos")]
         {
